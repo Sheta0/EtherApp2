@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]EtherApp</title>
+    <link href="images/favicon1.png" rel="icon" type="image/png" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/EtherApp.styles.css" asp-append-version="true" />
+    <link href="~/css/uikit.min.css" rel="stylesheet" />
+    <link href="/css/output.css" rel="stylesheet">
+</head>
+<body class="h-screen bg-[#eadbf0]">
+    <div id="wrapper">
+        @if (User.Identity.IsAuthenticated)
+        {
+            @* Topbar *@
+            @if(User.IsInRole("Admin"))
+            {
+                <partial name="Navigation/_TopBarAdmin.cshtml" />
+            }
+            else if(User.IsInRole("User"))
+            {
+                <partial name="Navigation/_TopBar.cshtml" />
+                <partial name="Navigation/_SideBar.cshtml" />
+            }
+        }
+
+        @RenderBody()
+    </div>
+
+    <partial name="Home/_PostDeleteDialog" />
+    <partial name="Home/_CommentDeleteDialog" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="~/js/simplebar.js" asp-append-version="true"></script>
+    <script src="~/js/script.js" asp-append-version="true"></script>
+    <script src="~/js/uikit.min.js" asp-append-version="true"></script>
+    <script src="~/js/social-interactions.js" asp-append-version="true"></script>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

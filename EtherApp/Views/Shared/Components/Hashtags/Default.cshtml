@@ -1,0 +1,20 @@
+﻿@model List<Hashtag>
+
+<div class="flex justify-between text-white">
+    <h3 class="font-bold !text-white">Trends for you</h3>
+</div>
+<div class="space-y-3.5 capitalize text-xs font-normal mt-5 mb-2 text-white/90">
+
+    @foreach (var hashtag in Model)
+    {
+        <a>
+            <div class="flex items-center gap-3 ">
+                <div class="flex-1">
+                    <h2 class="font-semibold !text-white">#@hashtag.Name</h2>
+                    <div class="mt-0.5 mb-4">@hashtag.Count posts</div>
+                </div>
+            </div>
+        </a>
+    }
+
+</div>

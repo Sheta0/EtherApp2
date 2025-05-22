@@ -1,0 +1,60 @@
+﻿@inject UserManager<User> UserManager
+
+@{
+    var loggedInUser = await UserManager.GetUserAsync(User);
+    var username = loggedInUser?.UserName;
+    var fullName = loggedInUser?.FullName;
+    var profilePicture = Url.Content("~/" + (string.IsNullOrEmpty(loggedInUser?.ProfilePictureUrl) ? "images/avatar/User.png" : loggedInUser.ProfilePictureUrl));
+}
+
+<header class="z-[100] h-[--m-top] fixed top-0 left-0 w-full flex items-center bg-[#4a3256] shadow-md">
+    <div class="2xl:w-[--w-side] lg:w-[--w-side-sm] pl-8">
+        <div class="flex items-center gap-1">
+            <div id="logo" class="flex items-center ml-4">
+                <a asp-controller="Admin" asp-action="Index" class="flex items-center">
+                    <div class="flex items-center">
+                        <ion-icon name="shield-checkmark" class="text-3xl text-white mr-2"></ion-icon>
+                        <span class="text-white font-bold text-xl">Admin Panel</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="flex-1 relative">
+        <div class="max-w-[1220px] mx-auto flex items-center">
+            <div class="flex w-full justify-center">
+                <span class="text-white font-bold text-lg">Reported Posts</span>
+            </div>
+
+            <div class="flex items-center sm:gap-4 gap-2 absolute right-5 top-1/2 -translate-y-1/2">
+
+
+                <div class="rounded-full relative cursor-pointer shrink-0">
+                    <img src="@profilePicture" class="sm:w-9 sm:h-9 w-8 h-8 rounded-full border-2 border-white shadow shrink-0" />
+                </div>
+                <div class="hidden bg-white rounded-lg drop-shadow-xl w-64 border border-[#cabeca]"
+                     uk-drop="offset:6; pos:bottom-right; animate-out:true">
+                    <div class="p-4 py-5 flex items-center gap-4">
+                        <img src="@profilePicture" class="w-10 h-10 rounded-full shadow border border-[#4a3256]" />
+                        <div class="flex-1">
+                            <h4 class="text-sm font-medium text-[#4a3256]">@fullName</h4>
+                            <div class="text-sm mt-1 text-[#cabeca] font-light">@username</div>
+                            <span class="text-xs bg-[#4a3256] text-white px-2 py-0.5 rounded-full mt-1 inline-block">Administrator</span>
+                        </div>
+                    </div>
+
+                    <hr class="mx-2 border-[#cabeca]" />
+                    <nav>
+                        <hr class="mx-2 border-[#cabeca]" />
+                        <a asp-controller="Authentication" asp-action="Logout" class="group">
+                            <div class="text-[#4a3256] flex items-center gap-2 hover:bg-[#eadbf0] p-2 m-1 rounded-lg px-2.5 transition-colors">
+                                <ion-icon name="exit-outline" class="text-[#4a3256] text-lg"></ion-icon>
+                                <p>Log Out</p>
+                            </div>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

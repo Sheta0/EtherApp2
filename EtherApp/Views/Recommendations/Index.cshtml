@@ -1,0 +1,62 @@
+﻿@model RecommendationsVM
+
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
+    <div class="lg:flex 2xl:gap-8 gap-6 max-w-[1200px] mx-auto" id="js-oversized">
+        <div class="mx-auto flex-1">
+            <!-- Recommended Posts -->
+            <div class="mb-5">
+                <h2 class="text-xl font-semibold text-[#4a3256] mb-4">Recommended Posts</h2>
+                @if (!Model.RecommendedPosts.Any())
+                {
+                    <div class="bg-white rounded-xl shadow-md md:p-4 p-3 text-sm text-[#4a3256] font-medium border border-[#cabeca] w-full">
+                        <span>No recommended posts yet. Continue interacting with content to get personalized recommendations.</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4">
+                        @foreach (var post in Model.RecommendedPosts)
+                        {
+                            <partial name="Home/_Post" model="post" view-data='new ViewDataDictionary(ViewData){ {"ShowAllComments", false} }' />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Sidebar - Similar Users -->
+        <div class="w-80 lg:block hidden">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca] sticky top-[calc(var(--m-top)+20px)]">
+                <h3 class="text-lg font-semibold text-[#4a3256] mb-4">People With Similar Interests</h3>
+
+                @if (!Model.SimilarUsers.Any())
+                {
+                    <p class="text-sm text-[#4a3256]">No users with similar interests found yet.</p>
+                }
+                else
+                {
+                    <div class="space-y-4">
+                        @foreach (var user in Model.SimilarUsers)
+                        {
+                            <div class="flex items-center gap-3">
+                                <a asp-controller="User" asp-action="Details" asp-route-userId="@user.Id">
+                                    <img src="@Url.Content("~/" + (string.IsNullOrEmpty(user.ProfilePictureUrl) ? "images/avatar/User.png" : user.ProfilePictureUrl))"
+                                         class="w-10 h-10 rounded-full object-cover border border-[#cabeca]" alt="@user.FullName">
+                                </a>
+                                <div>
+                                    <a asp-controller="User" asp-action="Details" asp-route-userId="@user.Id"
+                                       class="font-semibold text-[#4a3256] hover:underline">@user.FullName</a>
+                                    <p class="text-xs text-[#cabeca]">@user.UserName</p>
+                                </div>
+                                <a asp-controller="User" asp-action="Details" asp-route-userId="@user.Id"
+                                   class="ml-auto bg-[#4a3256] hover:bg-opacity-90 transition-all text-xs text-white rounded-full px-3 py-1.5">
+                                    View Profile
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</main>

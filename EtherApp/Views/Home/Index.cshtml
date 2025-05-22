@@ -1,0 +1,70 @@
+﻿@model List<Post>
+
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
+    <div class="lg:flex 2xl:gap-8 gap-6 max-w-[1200px] mx-auto" id="js-oversized">
+        <div class="mx-auto flex-1">
+
+            @await Component.InvokeAsync("Stories")
+
+            <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="bg-red-100 text-red-700 border border-red-300 px-4 py-3 rounded-lg mb-4 relative" role="alert">
+                        <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+                        <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                            <ion-icon name="close-outline" class="text-red-500"></ion-icon>
+                        </button>
+                    </div>
+                }
+
+                <div class="bg-white rounded-xl md:p-4 p-3 space-y-4 text-sm font-medium shadow-sm border border-[#cabeca]">
+                    <div class="flex items-center md:gap-3 gap-2">
+                        <div class="flex-1 bg-[#eadbf0] hover:bg-[#d2b9e0] transition-all rounded-lg cursor-pointer"
+                             uk-toggle="target: #create-status">
+                            <div class="py-2.5 text-center text-[#4a3256]">What do you have in mind?</div>
+                        </div>
+                        <div class="flex items-center justify-center hover:bg-[#d2b9e0] cursor-pointer p-2 rounded-lg transition-all bg-[#eadbf0]"
+                             uk-toggle="target: #create-status">
+                            <ion-icon name="image" class="text-2xl text-[#4a3256]"></ion-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="posts-container">
+                    @if (Model.Count == 0)
+                    {
+                        <div class="bg-white rounded-xl shadow-sm md:p-4 p-3 text-sm text-[#4a3256] font-medium border border-[#cabeca] w-full">
+                            Currently, there are no posts available. Would you like to create the first one?
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var post in Model)
+                        {
+                            <partial name="Home/_Post" model="post" view-data='new ViewDataDictionary(ViewData){ {"ShowAllComments", false} }' />
+                        }
+                    }
+                </div>
+
+
+            </div>
+        </div>
+        <div class="w-80 lg:block hidden">
+            <div class="lg:space-y-4 lg:pb-8 sticky top-[calc(var(--m-top)+20px)]">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
+                    @await Component.InvokeAsync("SuggestedFriends")
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
+                    @await Component.InvokeAsync("Hashtags")
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<partial name="../Shared/Modals/_CreateStatus" model="new PostVM()" />
+<partial name="../Shared/Modals/_CreateStory" model="new StoryVM()" />
+
+
+
+

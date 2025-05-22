@@ -1,0 +1,37 @@
+﻿@model List<Post>
+
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
+    <div class="lg:flex 2xl:gap-8 gap-6 max-w-[1200px] mx-auto" id="js-oversized">
+        <div class="mx-auto flex-1">
+            <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4">
+                <div class="bg-white rounded-xl md:p-4 p-3 text-sm font-medium shadow-sm border border-[#cabeca] mb-5">
+                    <h2 class="text-lg font-semibold text-[#4a3256]">Your Favorite Posts</h2>
+                </div>
+
+                @if (Model.Count == 0)
+                {
+                    <div class="bg-white rounded-xl shadow-md md:p-4 p-3 text-sm text-[#4a3256] font-medium border border-[#cabeca] w-full">
+                        Currently, there are no favorited posts available
+                    </div>
+                }
+                else
+                {
+                    @foreach (var post in Model)
+                    {
+                        <partial name="Home/_Post" model="post" view-data='new ViewDataDictionary(ViewData){ {"ShowAllComments", false} }' />
+                    }
+                }
+            </div>
+        </div>
+        <div class="w-80 lg:block hidden">
+            <div class="lg:space-y-4 lg:pb-8 sticky top-[calc(var(--m-top)+20px)]">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
+                    @await Component.InvokeAsync("SuggestedFriends")
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
+                    @await Component.InvokeAsync("Hashtags")
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

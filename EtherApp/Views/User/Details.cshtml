@@ -1,0 +1,283 @@
+﻿@using EtherApp.Data.Services.Interfaces
+@using EtherApp.Data.Services.Interfaces
+@model UserDetailsVM
+
+@inject UserManager<User> UserManager
+@inject IFriendsService FriendsService
+@inject IInterestService _interestService
+
+@{
+    var user = Model.User;
+    var loggedInUser = await UserManager.GetUserAsync(User);
+    var isCurrentUser = user != null && loggedInUser?.Id == user.Id;
+    var profilePicture = user != null
+        ? Url.Content("~/" + (string.IsNullOrEmpty(user.ProfilePictureUrl) ? "images/avatar/User.png" : user.ProfilePictureUrl))
+        : Url.Content("~/images/avatar/User.png");
+
+    var userFriends = user != null ? await FriendsService.GetUserFriendsAsync(user.Id) : new List<Friendship>();
+}
+
+
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
+    <div class="lg:flex 2xl:gap-8 gap-6 max-w-[1200px] mx-auto" id="js-oversized">
+        <div class="mx-auto flex-1">
+            <!-- Profile Header -->
+            <div class="bg-white rounded-xl shadow-md mb-5 border border-[#cabeca]">
+                <div class="flex flex-col md:flex-row items-center p-6 gap-6">
+                    <div class="relative w-24 h-24 shrink-0">
+                        <img src="@profilePicture" class="object-cover w-full h-full rounded-full border-2 border-[#4a3256]" alt="Profile Picture" />
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        @if (user != null)
+                        {
+                            <h1 class="text-2xl font-semibold text-[#4a3256]">@user.FullName</h1>
+                            <p class="text-sm text-[#cabeca] mt-1 font-normal">@user.UserName</p>
+                            <p class="text-sm text-[#4a3256] mt-4">@(string.IsNullOrEmpty(user.Bio) ? "No bio available" : user.Bio)</p>
+
+                            <!-- Interest Similarity Badge -->
+                            @if (!isCurrentUser && Model.SimilarityPercentage > 0)
+                            {
+                                <div class="inline-flex items-center gap-1 bg-[#4a3256] text-white px-3 py-1 rounded-full text-sm mt-3">
+                                    <ion-icon name="pulse-outline"></ion-icon>
+                                    <span class="font-bold">@Model.SimilarityPercentage%</span> interest match
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <h1 class="text-2xl font-semibold text-[#4a3256]">User not found</h1>
+                        }
+                    </div>
+                    <div class="flex flex-col items-center gap-3">
+                        @if (user != null && !isCurrentUser)
+                        {
+                            var pendingRequest = await FriendsService.GetFriendRequestAsync(loggedInUser.Id, user.Id);
+                            var isFriend = await FriendsService.IsFriendAsync(loggedInUser.Id, user.Id);
+
+                            if (isFriend)
+                            {
+                                <form asp-controller="Friends" asp-action="RemoveFriend">
+                                    <input type="hidden" name="friendshipId" value="@(await FriendsService.GetFriendshipIdAsync(loggedInUser.Id, user.Id))" />
+                                    <button type="submit" class="remove-friend-btn bg-gray-200 hover:bg-gray-300 transition-all ease-in-out duration-200 text-sm text-[#4a3256] rounded-full cursor-pointer px-4 py-2">
+                                        <ion-icon name="person-remove-outline" class="mr-1"></ion-icon>
+                                        Unfriend
+                                    </button>
+                                </form>
+                            }
+                            else if (pendingRequest == null)
+                            {
+                                <form asp-controller="Friends" asp-action="SendRequest">
+                                    <input type="hidden" name="receiverId" value="@user.Id" />
+                                    <button type="submit" class="add-friend-btn bg-[#4a3256] hover:bg-opacity-90 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer px-4 py-2">
+                                        <ion-icon name="person-add-outline" class="mr-1"></ion-icon>
+                                        Add Friend
+                                    </button>
+                                </form>
+                            }
+                            else if (pendingRequest.SenderId == loggedInUser.Id)
+                            {
+                                <form asp-controller="Friends" asp-action="UpdateRequest">
+                                    <input type="hidden" name="status" value="@FriendRequestStatus.Cancelled" />
+                                    <input type="hidden" name="requestId" value="@pendingRequest.Id" />
+                                    <button type="submit" class="friend-request-btn bg-gray-200 hover:bg-gray-300 transition-all ease-in-out duration-200 text-sm text-[#4a3256] rounded-full cursor-pointer px-4 py-2">
+                                        <ion-icon name="time-outline" class="mr-1"></ion-icon>
+                                        Cancel Request
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <div class="flex items-center gap-2">
+                                    <form asp-controller="Friends" asp-action="UpdateRequest">
+                                        <input type="hidden" name="status" value="@FriendRequestStatus.Accepted" />
+                                        <input type="hidden" name="requestId" value="@pendingRequest.Id" />
+                                        <button type="submit" class="friend-request-btn bg-[#4a3256] hover:bg-opacity-90 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer px-4 py-2">
+                                            Accept
+                                        </button>
+                                    </form>
+                                    <form asp-controller="Friends" asp-action="UpdateRequest">
+                                        <input type="hidden" name="status" value="@FriendRequestStatus.Rejected" />
+                                        <input type="hidden" name="requestId" value="@pendingRequest.Id" />
+                                        <button type="submit" class="friend-request-btn bg-gray-200 hover:bg-gray-300 transition-all ease-in-out duration-200 text-sm text-[#4a3256] rounded-full cursor-pointer px-4 py-2">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                        }
+
+                        @if (isCurrentUser)
+                        {
+                            <a asp-controller="User" asp-action="EditInterests"
+                               class="bg-[#eadbf0] hover:bg-[#d2b9e0] text-[#4a3256] px-4 py-2 rounded-full text-sm font-medium transition-colors">
+                                <ion-icon name="options-outline" class="mr-1"></ion-icon>
+                                Edit Interests
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <!-- User Interests Section -->
+                @if (Model.Interests != null && Model.Interests.Any())
+                {
+                    <div class="px-6 pb-4">
+                        <h3 class="text-sm font-semibold text-[#4a3256] mb-2">Interests</h3>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach (var interest in Model.Interests)
+                            {
+                                <div class="bg-[#eadbf0] text-[#4a3256] px-3 py-1 rounded-full text-sm flex items-center gap-1.5">
+                                    <ion-icon name="@interest.IconName"></ion-icon>
+                                    <span>@interest.Name</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Tabs -->
+                <div class="relative border-t border-[#cabeca]">
+                    <nav class="nav__underline px-6 py-1 border-transparent -mb-px">
+                        <ul class="uk-slider-items w-[calc(100%+10px)] !overflow-hidden flex" uk-switcher="connect: #profile_tab; animation: uk-animation-slide-right-medium, uk-animation-slide-left-medium">
+                            <li class="w-auto pr-2.5">
+                                <a href="#" class="tab-link text-[#4a3256] font-medium py-2 inline-block">Posts</a>
+                            </li>
+                            <li class="w-auto pr-2.5">
+                                <a href="#" class="tab-link text-[#4a3256] font-medium py-2 inline-block">Friends</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="profile_tab" class="uk-switcher">
+                <!-- Posts Tab -->
+                <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4" id="posts-container">
+                    @if (Model.Posts == null || !Model.Posts.Any())
+                    {
+                        <div class="bg-white rounded-xl shadow-md md:p-4 p-3 text-sm text-[#4a3256] font-medium border border-[#cabeca] w-full">
+                            @if (isCurrentUser)
+                            {
+                                <span>You haven't posted anything yet.</span>
+                            }
+                            else
+                            {
+                                <span>No posts available from this user.</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var post in Model.Posts)
+                        {
+                            <partial name="Home/_Post" model="post" view-data='new ViewDataDictionary(ViewData){ {"ShowAllComments", false} }' />
+                        }
+                    }
+                </div>
+
+                <!-- Friends Tab -->
+                <div class="md:max-w-[600px] mx-auto flex-1 xl:space-y-6 space-y-4">
+                    <div class="bg-white rounded-xl shadow-md md:p-4 p-3 text-sm font-medium border border-[#cabeca]">
+                        <h3 class="text-lg font-semibold text-[#4a3256] mb-4">Friends</h3>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            @if (userFriends != null && userFriends.Any())
+                            {
+                                foreach (var friendship in userFriends)
+                                {
+                                    var friend = friendship.SenderId == user.Id ? friendship.Receiver : friendship.Sender;
+                                    <div class="flex flex-col items-center">
+                                        <a asp-controller="User" asp-action="Details" asp-route-userId="@friend.Id" class="relative">
+                                            <img src="@Url.Content("~/" + (string.IsNullOrEmpty(friend.ProfilePictureUrl) ? "images/avatar/User.png" : friend.ProfilePictureUrl))"
+                                                 class="w-16 h-16 rounded-full border border-[#cabeca]" alt="@friend.FullName" />
+                                        </a>
+                                        <a asp-controller="User" asp-action="Details" asp-route-userId="@friend.Id" class="text-[#4a3256] text-sm mt-2 truncate w-full text-center">@friend.FullName</a>
+                                        @if (isCurrentUser)
+                                        {
+                                            <form asp-controller="Friends" asp-action="RemoveFriend" class="mt-2">
+                                                <input type="hidden" name="friendshipId" value="@friendship.Id" />
+                                                <button type="submit" class="remove-friend-btn bg-gray-200 hover:bg-gray-300 transition-all ease-in-out duration-200 text-xs text-[#4a3256] rounded-full cursor-pointer px-3 py-1.5">
+                                                    Unfriend
+                                                </button>
+                                            </form>
+
+                                        }
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-sm text-[#4a3256] font-medium py-3 col-span-full">
+                                    @if (user == null)
+                                    {
+                                        <span>User not found.</span>
+                                    }
+                                    else if (isCurrentUser)
+                                    {
+                                        <span>You don't have any friends yet.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>This user doesn't have any friends yet.</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="w-80 lg:block hidden">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca] sticky top-[calc(var(--m-top)+20px)]">
+                @if (user != null && !isCurrentUser && Model.Interests != null && Model.Interests.Any())
+                {
+                    <!-- User Interest Details for Sidebar -->
+                    <div class="mb-5">
+                        <h3 class="font-semibold text-[#4a3256] mb-3">Common Interests</h3>
+                        <div class="flex flex-col gap-2">
+                            @{
+                                var commonInterestCount = 0;
+                                var loggedInUserInterests = await _interestService.GetUserInterestsAsync(loggedInUser.Id);
+                                var commonInterests = Model.Interests.Where(i => loggedInUserInterests.Any(ui => ui.Id == i.Id)).ToList();
+                                commonInterestCount = commonInterests.Count;
+                            }
+
+                            @if (commonInterests.Any())
+                            {
+                                @foreach (var interest in commonInterests.Take(5))
+                                {
+                                    <div class="flex items-center gap-2 text-[#4a3256]">
+                                        <ion-icon name="checkmark-circle" class="text-green-500"></ion-icon>
+                                        <span>@interest.Name</span>
+                                    </div>
+                                }
+
+                                @if (commonInterests.Count > 5)
+                                {
+                                    <p class="text-xs text-[#cabeca] mt-1">+ @(commonInterests.Count - 5) more common interests</p>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-sm text-[#cabeca]">No common interests found</p>
+                            }
+                        </div>
+                    </div>
+
+                    <hr class="my-4 border-[#cabeca]" />
+                }
+
+                @await Component.InvokeAsync("SuggestedFriends")
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const switcher = UIkit.switcher(document.querySelector('[uk-switcher]'));
+        switcher.show(0); // Show posts tab by default
+    });
+</script>

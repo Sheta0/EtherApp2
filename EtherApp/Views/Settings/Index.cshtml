@@ -1,0 +1,212 @@
+﻿@model User;
+
+@inject UserManager<User> UserManager
+
+@{
+    var loggedInUser = await UserManager.GetUserAsync(User);
+    var profilePicture = Url.Content("~/" + (string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "images/avatar/User.png" : Model.ProfilePictureUrl));
+}
+
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-[#eadbf0]">
+    <div class="max-w-[900px] mx-auto" id="js-oversized">
+        <div class="mx-auto w-full">
+            <!-- Profile Header -->
+            <div class="bg-white rounded-xl shadow-md mb-5 border border-[#cabeca]">
+                <div class="flex flex-col md:flex-row items-center p-6 gap-6">
+                    <form asp-controller="Settings" asp-action="UpdateProfilePicture" enctype="multipart/form-data" id="updateProfilePictureForm" class="relative">
+                        <div class="relative w-24 h-24 shrink-0">
+                            <label for="imageUpload" class="cursor-pointer">
+                                <img id="imagePreview" src="@profilePicture" class="object-cover w-full h-full rounded-full border-2 border-[#4a3256]" alt="Profile Picture" />
+                                <input type="file" id="imageUpload" name="ProfilePicture" class="hidden" accept="image/png, image/jpeg" />
+                            </label>
+                            <label for="imageUpload" class="p-1.5 rounded-full bg-[#4a3256] text-white absolute -bottom-2 -right-2 cursor-pointer shadow-sm flex items-center justify-center w-8 h-8">
+                                <ion-icon name="camera" class="text-base"></ion-icon>
+                            </label>
+                        </div>
+                        <button type="submit" id="saveButton" class="hidden mt-2 bg-[#4a3256] hover:bg-opacity-90 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer px-3 py-1 absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-8">Save</button>
+                    </form>
+                    <div class="flex-1 text-center md:text-left mt-4 md:mt-0">
+                        <h1 class="text-2xl font-semibold text-[#4a3256]">@Model.FullName</h1>
+                        <p class="text-sm text-[#cabeca] mt-1 font-normal">@Model.UserName</p>
+                        <p class="text-sm text-[#4a3256] mt-4">@(string.IsNullOrEmpty(Model.Bio) ? "No bio available" : Model.Bio)</p>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="relative border-t border-[#cabeca]">
+                    <nav class="nav__underline px-6 py-1 border-transparent">
+                        <ul class="flex space-x-8 overflow-x-auto" uk-switcher="connect: #setting_tab; animation: uk-animation-slide-right-medium, uk-animation-slide-left-medium">
+                            <li>
+                                <a href="#" id="profile-tab" class="flex items-center gap-2 py-2 border-b-2 border-transparent transition-all duration-300 font-medium hover:text-[#4a3256] text-[#cabeca]">
+                                    <ion-icon name="person-outline" class="text-xl"></ion-icon>
+                                    <span>Profile</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="password-tab" class="flex items-center gap-2 py-2 border-b-2 border-transparent transition-all duration-300 font-medium hover:text-[#4a3256] text-[#cabeca]">
+                                    <ion-icon name="lock-closed-outline" class="text-xl"></ion-icon>
+                                    <span>Password</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="setting_tab" class="uk-switcher">
+                <!-- Profile Tab -->
+                <div class="md:max-w-[600px] mx-auto xl:space-y-6 space-y-4">
+                    <div class="bg-white rounded-xl shadow-md md:p-6 p-4 border border-[#cabeca]">
+                        <h3 class="text-lg font-semibold text-[#4a3256] mb-5">Update Profile</h3>
+
+                        <form asp-controller="Authentication" asp-action="UpdateProfile">
+                            @if (TempData["ProfileError"] is not null)
+                            {
+                                <div class="bg-red-500 text-white p-3 rounded-lg text-center mb-5">
+                                    @TempData["ProfileError"]
+                                </div>
+                            }
+                            @if (TempData["ProfileSuccess"] is not null)
+                            {
+                                <div class="bg-green-500 text-white p-3 rounded-lg text-center mb-5">
+                                    @TempData["ProfileSuccess"]
+                                </div>
+                            }
+
+                            <div class="space-y-5">
+                                <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                                    <label class="text-[#4a3256] font-medium md:text-right">Full Name</label>
+                                    <div class="md:col-span-2">
+                                        <input type="text" value="@Model.FullName" name="fullName" placeholder="Enter your Full Name" class="text-[#4a3256] w-full rounded-lg bg-[#eadbf0] border-[#cabeca] focus:ring-[#4a3256] focus:border-[#4a3256]" />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                                    <label class="text-[#4a3256] font-medium md:text-right">Username</label>
+                                    <div class="md:col-span-2">
+                                        <input type="text" value="@Model.UserName" name="username" placeholder="Enter your Username" class="text-[#4a3256] w-full rounded-lg bg-[#eadbf0] border-[#cabeca] focus:ring-[#4a3256] focus:border-[#4a3256]" />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <label class="text-[#4a3256] font-medium md:text-right md:pt-2">Bio</label>
+                                    <div class="md:col-span-2">
+                                        <textarea class="text-[#4a3256] w-full rounded-lg bg-[#eadbf0] border-[#cabeca] focus:ring-[#4a3256] focus:border-[#4a3256]" name="bio" rows="5" placeholder="@(string.IsNullOrEmpty(Model.Bio) ? "Tell us about yourself..." : Model.Bio)"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button type="submit" class="bg-[#4a3256] hover:bg-opacity-90 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer px-6 py-2.5">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Password Tab -->
+                <div class="md:max-w-[600px] mx-auto xl:space-y-6 space-y-4">
+                    <div class="bg-white rounded-xl shadow-md md:p-6 p-4 border border-[#cabeca]">
+                        <h3 class="text-lg font-semibold text-[#4a3256] mb-5">Change Password</h3>
+
+                        <form asp-controller="Authentication" asp-action="UpdatePassword">
+                            @if (TempData["PasswordError"] is not null)
+                            {
+                                <div class="bg-red-500 text-white p-3 rounded-lg text-center mb-5">
+                                    @TempData["PasswordError"]
+                                </div>
+                            }
+                            @if (TempData["PasswordSuccess"] is not null)
+                            {
+                                <div class="bg-green-500 text-white p-3 rounded-lg text-center mb-5">
+                                    @TempData["PasswordSuccess"]
+                                </div>
+                            }
+
+                            <div class="space-y-5">
+                                <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                                    <label class="text-[#4a3256] font-medium md:text-right">Current Password</label>
+                                    <div class="md:col-span-2">
+                                        <input type="password" name="currentPassword" placeholder="Enter your Current Password" class="text-[#4a3256] w-full rounded-lg bg-[#eadbf0] border-[#cabeca] focus:ring-[#4a3256] focus:border-[#4a3256]" />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                                    <label class="text-[#4a3256] font-medium md:text-right">New Password</label>
+                                    <div class="md:col-span-2">
+                                        <input type="password" name="newPassword" placeholder="Enter your New Password" class="text-[#4a3256] w-full rounded-lg bg-[#eadbf0] border-[#cabeca] focus:ring-[#4a3256] focus:border-[#4a3256]" />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                                    <label class="text-[#4a3256] font-medium md:text-right">Confirm Password</label>
+                                    <div class="md:col-span-2">
+                                        <input type="password" name="confirmPassword" placeholder="Confirm your New Password" class="text-[#4a3256] w-full rounded-lg bg-[#eadbf0] border-[#cabeca] focus:ring-[#4a3256] focus:border-[#4a3256]" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button type="submit" class="bg-[#4a3256] hover:bg-opacity-90 transition-all ease-in-out duration-200 text-sm text-white rounded-full cursor-pointer px-6 py-2.5">Update Password</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const profileTab = document.getElementById('profile-tab');
+        const passwordTab = document.getElementById('password-tab');
+        const switcher = UIkit.switcher(document.querySelector('[uk-switcher]'));
+
+        
+        function setActiveTab(activeTabIndex) {
+            profileTab.classList.remove('text-[#4a3256]', 'border-[#4a3256]', 'font-semibold');
+            passwordTab.classList.remove('text-[#4a3256]', 'border-[#4a3256]', 'font-semibold');
+            profileTab.classList.add('text-[#cabeca]', 'border-transparent');
+            passwordTab.classList.add('text-[#cabeca]', 'border-transparent');
+
+            if (activeTabIndex === 0) {
+                profileTab.classList.remove('text-[#cabeca]', 'border-transparent');
+                profileTab.classList.add('text-[#4a3256]', 'border-[#4a3256]', 'font-semibold');
+            } else {
+                passwordTab.classList.remove('text-[#cabeca]', 'border-transparent');
+                passwordTab.classList.add('text-[#4a3256]', 'border-[#4a3256]', 'font-semibold');
+            }
+        }
+
+        UIkit.util.on(document, 'shown', '[uk-switcher]', function() {
+            setActiveTab(switcher.index);
+        });
+
+        const initialTabIndex = '@TempData["ActiveTab"]' === 'Password' ? 1 : 0;
+        switcher.show(initialTabIndex);
+
+        setTimeout(function() {
+            setActiveTab(initialTabIndex);
+        }, 100);
+
+        // Handle image upload
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const saveButton = document.getElementById('saveButton');
+
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    saveButton.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveButton.classList.add('hidden');
+            }
+        });
+    });
+</script>

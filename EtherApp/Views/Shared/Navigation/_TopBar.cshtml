@@ -1,0 +1,185 @@
+﻿@inject UserManager<User> UserManager
+
+@{
+    var loggedInUser = await UserManager.GetUserAsync(User);
+    var username = loggedInUser?.UserName;
+    var fullName = loggedInUser?.FullName;
+    var profilePicture = Url.Content("~/" + (string.IsNullOrEmpty(loggedInUser?.ProfilePictureUrl) ? "images/avatar/User.png" : loggedInUser.ProfilePictureUrl));
+}
+
+<header class="z-[100] h-[--m-top] fixed top-0 left-0 w-full flex items-center bg-white shadow-sm">
+    <div class="2xl:w-[--w-side] lg:w-[--w-side-sm] pl-8">
+        <div class="flex items-center gap-1">
+            <button uk-toggle="target:#site__sidebar; cls:!-translate-x-0"
+                    class="flex items-center justify-center w-8 h-8 text-xl rounded-full hover:bg-[#eadbf0] xl:hidden group">
+                <ion-icon name="menu-outline" class="text-[#4a3256] text-2xl group-aria-expanded:hidden"></ion-icon>
+                <ion-icon name="close-outline" class="text-[#4a3256] hidden text-2xl group-aria-expanded:block"></ion-icon>
+            </button>
+            <div id="logo" class="flex items-center ml-4">
+                <a asp-controller="Home" asp-action="Index" class="flex items-center">
+                    <img src="~/images/logo2.png" class="w-40 md:block hidden" alt="logo" />
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="flex-1 relative">
+        @* Search *@
+        <div class="max-w-[1220px] mx-auto flex items-center">
+            <form id="search--box" class="relative xl:w-[480px] sm:w-96 rounded-full overflow-hidden z-20 bg-[#eadbf0] transition-all duration-300 ease-in-out max-md:hidden w-screen left-0 max-sm:fixed max-sm:top-2">
+                <ion-icon name="search-outline" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#4a3256]"></ion-icon>
+                <input type="text" name="query" placeholder="Search Posts, Friends..."
+                       class="w-full pl-10 h-10 text-sm text-[#4a3256] bg-[#eadbf0] rounded-full focus:ring-1 focus:ring-[#4a3256] border-0" />
+            </form>
+        </div>
+        <div class="max-w-[1220px] mx-auto flex items-center">
+            <div class="flex items-center sm:gap-4 gap-2 absolute right-5 top-1/2 -translate-y-1/2">
+                <button type="button" id="notificationsBtn" class="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#eadbf0] transition duration-200 group">
+                    <ion-icon name="notifications-outline" class="text-xl text-[#4a3256] group-hover:text-[#4a3256]"></ion-icon>
+                    <span id="notificationsCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">0</span>
+                </button>
+                <div class="hidden bg-white pr-1.5 rounded-lg drop-shadow-xl md:w-[365px] w-screen border border-[#cabeca]"
+                     uk-drop="offset:6; pos:bottom-right; mode: click; animate-out:true;">
+                    <div class="flex items-center justify-between gap-2 p-4 pb-2">
+                        <h3 class="font-bold text-xl text-[#4a3256]">Notifications</h3>
+                    </div>
+                    <div class="text-sm h-[400px] w-full overflow-y-auto pr-2">
+                        <div class="text-[#4a3256] pl-2 p-1 text-sm font-normal" id="notification-dropdown">
+                            No notifications...
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-full relative cursor-pointer shrink-0">
+                    <img src="@profilePicture" class="sm:w-9 sm:h-9 w-8 h-8 rounded-full border-2 border-[#4a3256] shadow shrink-0" />
+                </div>
+                <div class="hidden bg-white rounded-lg drop-shadow-xl w-64 border border-[#cabeca]"
+                     uk-drop="offset:6; pos:bottom-right; animate-out:true">
+                    <a asp-controller="User" asp-action="Details" asp-route-userId="@loggedInUser.Id">
+                        <div class="p-4 py-5 flex items-center gap-4">
+                            <img src="@profilePicture" class="w-10 h-10 rounded-full shadow border border-[#4a3256]" />
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-[#4a3256]">@fullName</h4>
+                                <div class="text-sm mt-1 text-[#cabeca] font-light">@username</div>
+                            </div>
+                        </div>
+                    </a>
+                    <hr class="mx-2 border-[#cabeca]" />
+                    <nav>
+                        <a class="group" asp-controller="Settings" asp-action="Index">
+                            <div class="text-[#4a3256] flex items-center gap-2 hover:bg-[#eadbf0] p-2 m-1 rounded-lg px-2.5 transition-colors">
+                                <ion-icon name="settings-outline" class="text-[#4a3256] text-lg"></ion-icon>
+                                <p> Edit Profile </p>
+                            </div>
+                        </a>
+                        <hr class="mx-2 border-[#cabeca]" />
+                        <a asp-controller="Authentication" asp-action="Logout" class="group">
+                            <div class="text-[#4a3256] flex items-center gap-2 hover:bg-[#eadbf0] p-2 m-1 rounded-lg px-2.5 transition-colors">
+                                <ion-icon name="exit-outline" class="text-[#4a3256] text-lg"></ion-icon>
+                                <p> Log Out </p>
+                            </div>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.0.27/signalr.min.js" integrity="sha512-a+73ErrZPjhqOu0qbW1QLsenEF4pvDjmnd+Ws6hkDyJlrwAigOQAxQhIT+fPNFWScUvtJQvn+G535TT2C6/G4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    // Define globally accessible functions for notification actions
+    window.markNotificationAsRead = function(notificationId) {
+        console.log('Marking notification as read:', notificationId);
+
+        fetch('/Notifications/MarkAsRead', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(notificationId)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            console.log('Successfully marked notification as read');
+            document.getElementById('notification-dropdown').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+        });
+    };
+
+    window.markAllNotificationsAsRead = function() {
+        console.log('Marking all notifications as read');
+
+        fetch('/Notifications/MarkAllAsRead', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            console.log('Successfully marked all notifications as read');
+            document.getElementById('notification-dropdown').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error marking all notifications as read:', error);
+        });
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Function to update notification count
+        function updateNotificationCount() {
+            fetch("/Notifications/GetCount")
+                .then(response => response.json())
+                .then(count => {
+                    console.log("Notification count:", count);
+                    const countElement = document.getElementById("notificationsCount");
+                    countElement.textContent = count;
+
+                    // Hide badge if no notifications
+                    countElement.style.display = count > 0 ? '' : 'none';
+                })
+                .catch(error => console.error("Error fetching notification count:", error));
+        }
+
+        // Initial count update
+        updateNotificationCount();
+
+        // Load notifications when clicking the notifications button
+        document.getElementById('notificationsBtn').addEventListener('click', function() {
+            fetch('/Notifications/GetAllNotifications')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('notification-dropdown').innerHTML = html;
+                })
+                .catch(error => console.error("Error fetching notifications:", error));
+        });
+
+        // Set up SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
+
+        connection.on("ReceiveNotification", function(count) {
+            console.log("Notification count updated:", count);
+            const countElement = document.getElementById("notificationsCount");
+            countElement.textContent = count;
+            countElement.style.display = count > 0 ? '' : 'none';
+        });
+
+        connection.start()
+            .then(() => console.log("SignalR Connected"))
+            .catch(err => console.error("SignalR Connection Error:", err));
+    });
+</script>
+

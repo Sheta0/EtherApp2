@@ -1,0 +1,116 @@
+﻿@model List<Notification>
+
+<div class="notifications-container">
+    @if (Model != null && Model.Any())
+    {
+        <div class="flex justify-between items-center px-4 py-2 border-b border-[#cabeca]">
+            <span class="text-sm font-medium text-[#4a3256]">@Model.Count Notifications</span>
+            <button type="button" onclick="window.markAllNotificationsAsRead()"
+                    class="text-xs text-[#4a3256] font-medium hover:text-[#4a3256]/80 bg-[#eadbf0] hover:bg-[#eadbf0]/80 px-3 py-1 rounded-full transition-all">
+                Mark all as read
+            </button>
+        </div>
+
+        <div id="notifications-list">
+            @foreach (var notification in Model)
+            {
+                <div class="notification-item flex items-center gap-3 p-3 @(notification.IsRead ? "bg-white" : "bg-[#eadbf0]/30") hover:bg-[#eadbf0]/20 transition-colors rounded-lg mb-1">
+                    @* Icon based on notification type *@
+                    <div class="w-10 h-10 rounded-full bg-[#eadbf0] flex items-center justify-center shrink-0 border border-[#cabeca]">
+                        @switch (notification.Type)
+                        {
+                            case "Like":
+                                <ion-icon name="heart" class="text-red-500 text-xl"></ion-icon>
+                                break;
+                            case "Comment":
+                                <ion-icon name="chatbubble-ellipses" class="text-[#4a3256] text-xl"></ion-icon>
+                                break;
+                            case "Favorite":
+                                <ion-icon name="star" class="text-yellow-500 text-xl"></ion-icon>
+                                break;
+                            case "FriendRequest":
+                                <ion-icon name="person-add" class="text-[#4a3256] text-xl"></ion-icon>
+                                break;
+                            case "FriendRequestAccepted":
+                                <ion-icon name="people" class="text-[#4a3256] text-xl"></ion-icon>
+                                break;
+                            default:
+                                <ion-icon name="notifications" class="text-[#4a3256] text-xl"></ion-icon>
+                                break;
+                        }
+                    </div>
+
+                    <div class="flex-1">
+                        <div class="text-sm text-[#4a3256] font-medium">@notification.Message</div>
+                        <div class="text-xs text-[#cabeca]">@TimeAgo(notification.DateCreated)</div>
+                    </div>
+
+                    @if (!notification.IsRead)
+                    {
+                        <div class="unread-indicator h-2 w-2 bg-blue-600 rounded-full"></div>
+                    }
+
+                    <div class="flex items-center gap-1">
+                        @if (!notification.IsRead)
+                        {
+                            <button type="button"
+                                    class="shrink-0 text-[#4a3256] hover:bg-[#eadbf0] w-8 h-8 rounded-full flex items-center justify-center"
+                                    onclick="window.markNotificationAsRead(@notification.Id)"
+                                    title="Mark as read">
+                                <ion-icon name="checkmark-outline" class="text-lg"></ion-icon>
+                            </button>
+                        }
+
+                        @{
+                            string redirectUrl = notification.Type switch
+                            {
+                                "FriendRequest" => Url.Action("Index", "Friends"),
+                                "FriendRequestAccepted" => Url.Action("Index", "Friends"),
+                                "Like" => Url.Action("PostDetails", "Home", new { postId = notification.PostId }),
+                                "Comment" => Url.Action("PostDetails", "Home", new { postId = notification.PostId }),
+                                "Favorite" => Url.Action("PostDetails", "Home", new { postId = notification.PostId }),
+                                _ => Url.Action("Index", "Home")
+                            };
+                        }
+
+
+                        <a href="@redirectUrl"
+                           class="shrink-0 text-[#4a3256] hover:bg-[#eadbf0] w-8 h-8 rounded-full flex items-center justify-center"
+                           onclick="event.preventDefault(); window.markNotificationAsRead(@notification.Id); window.location.href='@redirectUrl';">
+                            <ion-icon name="arrow-forward"></ion-icon>
+                        </a>
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="p-8 text-center text-[#4a3256]">
+            <div class="w-16 h-16 rounded-full bg-[#eadbf0] flex items-center justify-center mx-auto mb-4">
+                <ion-icon name="notifications-off-outline" class="text-3xl text-[#4a3256]"></ion-icon>
+            </div>
+            <h3 class="font-medium text-lg mb-1">No notifications yet</h3>
+            <p class="text-sm text-[#cabeca]">When you receive notifications, they'll appear here.</p>
+        </div>
+    }
+</div>
+
+@functions {
+    public string TimeAgo(DateTime dateTime)
+    {
+        var timeSpan = DateTime.UtcNow.Subtract(dateTime);
+
+        if (timeSpan.TotalSeconds < 60)
+            return "just now";
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes}m ago";
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours}h ago";
+        if (timeSpan.TotalDays < 7)
+            return $"{(int)timeSpan.TotalDays}d ago";
+
+        return dateTime.ToString("MMM dd, yyyy");
+    }
+}

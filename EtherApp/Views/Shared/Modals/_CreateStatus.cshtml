@@ -1,0 +1,78 @@
+﻿@model PostVM;
+
+<div id="create-status" class="uk-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body rounded-xl shadow-xl max-w-[600px] overflow-hidden bg-white border border-[#cabeca]">
+        <div class="text-center py-3 border-b mb-4">
+            <h2 class="text-xl font-bold text-[#4a3256]">Create Post</h2>
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+        </div>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="bg-red-100 text-red-700 border border-red-300 px-4 py-3 rounded-lg mb-4" role="alert">
+                <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+            </div>
+        }
+
+        <form asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data" class="space-y-4">
+            <div class="flex space-x-3 items-start">
+                <div class="flex-1">
+                    <textarea name="Content" rows="4" class="w-full rounded-lg bg-[#eadbf0] p-3 focus:outline-none focus:ring-2 focus:ring-[#d2b9e0] resize-none" placeholder="What's on your mind?"></textarea>
+                </div>
+            </div>
+
+            <div class="border rounded-lg p-4 bg-[#f7f2f9]">
+                <label class="block text-sm font-medium text-[#4a3256] mb-3">Add Photo</label>
+                <div class="flex flex-col md:flex-row md:items-center gap-3">
+                    <div id="imagePreview" class="hidden h-32 w-32 rounded-lg bg-[#eadbf0] flex items-center justify-center overflow-hidden border-2 border-dashed border-[#b797cc]">
+                        <img src="" alt="Preview" class="max-h-full max-w-full">
+                    </div>
+                    <div class="flex-1">
+                        <label class="cursor-pointer bg-[#eadbf0] hover:bg-[#d2b9e0] text-[#4a3256] py-2 px-4 rounded-lg transition-all inline-block w-full text-center">
+                            <span class="flex items-center justify-center">
+                                <ion-icon name="image-outline" class="text-xl mr-2"></ion-icon>
+                                Upload Image
+                            </span>
+                            <input type="file" name="Image" id="imageInput" class="hidden" accept="image/*">
+                        </label>
+                        <p class="text-xs text-gray-500 mt-2 text-center">Click to select an image from your device</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-3 pb-1 border-t mt-3">
+                <button type="button" class="bg-gray-200 hover:bg-gray-300 px-5 py-2.5 rounded-lg text-gray-700 mr-3 uk-modal-close transition-all">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-[#4a3256] hover:bg-[#b797cc] px-6 py-2.5 rounded-lg text-white font-medium transition-all shadow-sm">
+                    Post
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    imagePreview.querySelector('img').src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    imagePreview.classList.add('flex');
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                imagePreview.classList.add('hidden');
+                imagePreview.classList.remove('flex');
+            }
+        });
+    });
+</script>

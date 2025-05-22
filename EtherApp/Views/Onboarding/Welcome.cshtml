@@ -1,0 +1,39 @@
+﻿@model EditInterestsViewModel
+
+<div class="min-h-screen bg-[#eadbf0] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-md">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-[#4a3256]">Welcome to EtherApp!</h2>
+            <p class="mt-2 text-center text-sm text-[#cabeca]">
+                Please select your interests to personalize your experience
+            </p>
+        </div>
+
+        <form asp-controller="Onboarding" asp-action="Welcome" method="post" class="mt-8 space-y-6">
+            <div class="grid grid-cols-2 gap-3">
+                @foreach (var interest in Model.AllInterests)
+                {
+                    <div class="border border-[#cabeca] rounded-lg p-3 @(Model.SelectedInterestIds.Contains(interest.Id) ? "bg-[#eadbf0] border-[#4a3256]" : "")">
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input type="checkbox" name="SelectedInterestIds" value="@interest.Id"
+                                   class="mt-1 rounded border-[#cabeca] text-[#4a3256] focus:ring-[#4a3256]"
+                            @(Model.SelectedInterestIds.Contains(interest.Id) ? "checked" : "") />
+                            <div>
+                                <h3 class="font-medium text-[#4a3256] flex items-center gap-2">
+                                    <ion-icon name="@interest.IconName"></ion-icon>
+                                    @interest.Name
+                                </h3>
+                            </div>
+                        </label>
+                    </div>
+                }
+            </div>
+
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#4a3256] hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a3256]">
+                    Get Started
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

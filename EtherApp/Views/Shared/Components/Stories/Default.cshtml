@@ -1,0 +1,39 @@
+﻿@model List<Story>
+@* Stories *@
+<div class="mb-8">
+    <h3 class="font-extrabold text-2xl text-black hidden">Stories</h3>
+    <div class="relative" tabindex="-1" uk-slider="auto play: true; finite: true" uk-lightbox="">
+        <div class="py-5 uk-slider-container">
+            <ul class="uk-slider-items w-[calc(100%+14px)] justify-center" uk-scrollspy="target: > li; cls:uk-animation-scale-up; delay:20; repeat:true">
+
+                <li class="md: pr-3" uk-scrollspy-class="uk-animation-fade">
+                    <div class="md:w-16 md:h-16 w-12 h-12 rounded-full relative border-2 border-dashed grid place-items-center bg-slate-200 border-slate-300 shrink-0"
+                         uk-toggle="target:#create-story">
+                        <ion-icon name="camera" class="text-2xl"></ion-icon>
+                    </div>
+                </li>
+
+
+
+                @foreach (var story in Model)
+                {
+                    <li class="md:pr-3 pr-2 hover:scale-[1.15]  hover:-rotate-2 duration-300">
+                        <a href="@story.ImageUrl">
+                            <div class="md:w-16 md:h-16 w-12 h-12 relative md:border-4 border-2 border-[#3a015c] rounded-full overflow-hidden">
+                                <img src="@story.User.ProfilePictureUrl" />
+                            </div>
+                        </a>
+                    </li>
+                }
+
+                <li class="md:pr-3 pr-2">
+                    <div class="md:w-16 md:h-16 w-12 h-12 bg-[#3a015c] rounded-full animate-pulse">
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<partial name="../../Modals/_CreateStory.cshtml" model="new StoryVM()" />
+

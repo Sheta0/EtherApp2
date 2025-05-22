@@ -1,0 +1,128 @@
+﻿@model List<Post>
+
+<main id="site__main" class="2xl:ml-0 xl:ml-0 p-4 h-100 mt-[--m-top] bg-[#eadbf0]">
+    <div class="max-w-[1200px] mx-auto" id="js-oversized">
+        <div class="mx-auto flex-1">
+            <div class="md:max-w-[700px] mx-auto">
+                <!-- Admin Dashboard Header -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-[#cabeca] mb-6">
+                    <h1 class="text-2xl font-bold text-[#4a3256] mb-2">Admin Dashboard</h1>
+                    <p class="text-[#4a3256]/80">Manage reported posts that require moderation.</p>
+                </div>
+
+                <!-- Success and Error Messages -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="bg-green-100 text-green-700 border border-green-300 px-4 py-3 rounded-lg mb-6 relative" role="alert">
+                        <div class="flex items-center">
+                            <ion-icon name="checkmark-circle" class="text-green-500 text-xl mr-2"></ion-icon>
+                            <span class="block sm:inline">@TempData["SuccessMessage"]</span>
+                        </div>
+                        <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                            <ion-icon name="close-outline" class="text-green-500"></ion-icon>
+                        </button>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="bg-red-100 text-red-700 border border-red-300 px-4 py-3 rounded-lg mb-6 relative" role="alert">
+                        <div class="flex items-center">
+                            <ion-icon name="alert-circle" class="text-red-500 text-xl mr-2"></ion-icon>
+                            <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+                        </div>
+                        <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                            <ion-icon name="close-outline" class="text-red-500"></ion-icon>
+                        </button>
+                    </div>
+                }
+
+                <!-- Reported Posts Section -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-[#cabeca] mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-[#4a3256]">Reported Posts</h2>
+                        <span class="bg-[#4a3256] text-white text-xs rounded-full px-2.5 py-1">@Model.Count posts</span>
+                    </div>
+
+                    @if (Model.Count == 0)
+                    {
+                        <div class="bg-[#eadbf0]/50 rounded-lg p-4 text-center">
+                            <ion-icon name="checkmark-circle-outline" class="text-3xl text-[#4a3256] mb-2"></ion-icon>
+                            <p class="text-[#4a3256]">No reported posts at this time</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="space-y-4">
+                            @foreach (var post in Model)
+                            {
+                                <div class="border border-[#cabeca] rounded-lg p-4 hover:border-[#4a3256] transition-colors">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-3">
+                                            <img src="@Url.Content("~/" + (string.IsNullOrEmpty(post.User?.ProfilePictureUrl) ? "images/avatar/User.png" : post.User.ProfilePictureUrl))"
+                                                 class="w-10 h-10 rounded-full border border-[#cabeca]" />
+                                            <div>
+                                                <h3 class="font-medium text-[#4a3256]">@post.User?.FullName</h3>
+                                                <p class="text-xs text-[#4a3256]/70">@post.DateCreated.ToString("MMM dd, yyyy HH:mm")</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="bg-red-100 text-red-600 text-xs rounded-full px-2.5 py-1 flex items-center">
+                                                <ion-icon name="flag" class="mr-1"></ion-icon>
+                                                @post.NrOfReports reports
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-[#4a3256] mb-3">@post.Content</p>
+
+                                    @if (!string.IsNullOrEmpty(post.ImageUrl))
+                                    {
+                                        <div class="relative w-full max-h-80 overflow-hidden rounded-lg mb-3">
+                                            <img src="@Url.Content("~/" + post.ImageUrl)" class="w-full h-full object-cover" />
+                                        </div>
+                                    }
+
+                                    <div class="flex gap-2 mt-4">
+                                        <form asp-controller="Admin" asp-action="ApprovePost" method="post">
+                                            <input type="hidden" name="postId" value="@post.Id" />
+                                            <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-lg flex items-center gap-1 transition-colors">
+                                                <ion-icon name="checkmark-outline"></ion-icon>
+                                                Approve
+                                            </button>
+                                        </form>
+                                        <form asp-controller="Admin" asp-action="DeletePost" method="post">
+                                            <input type="hidden" name="postId" value="@post.Id" />
+                                            <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg flex items-center gap-1 transition-colors">
+                                                <ion-icon name="trash-outline"></ion-icon>
+                                                Delete
+                                            </button>
+                                        </form>
+                                        <a asp-controller="Home" asp-action="PostDetails" asp-route-postId="@post.Id" class="bg-[#eadbf0] hover:bg-[#d2b9e0] text-[#4a3256] px-4 py-2 rounded-lg flex items-center gap-1 transition-colors ml-auto">
+                                            <ion-icon name="eye-outline"></ion-icon>
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Auto-hide notifications after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const notifications = document.querySelectorAll('[role="alert"]');
+        if (notifications.length > 0) {
+            setTimeout(function() {
+                notifications.forEach(function(notification) {
+                    notification.style.display = 'none';
+                });
+            }, 5000);
+        }
+    });
+</script>

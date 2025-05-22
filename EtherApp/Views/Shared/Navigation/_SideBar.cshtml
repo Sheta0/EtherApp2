@@ -1,0 +1,75 @@
+﻿@inject UserManager<User> UserManager
+
+@{
+    var loggedInUser = await UserManager.GetUserAsync(User);
+}
+<div id="site__sidebar" class="fixed top-0 left-0 z-[99] pt-[70px] overflow-hidden transition-transform xl:duration-500 max-xl:w-full max-xl:-translate-x-full">
+    <div class="p-3 max-xl:bg-white shadow-sm 2xl:w-72 sm:w-64 w-[80%] h-[calc(100vh-70px)] relative z-30 max-lg:border-r border-[#cabeca] bg-white">
+        <div class="pr-4" data-simplebar>
+            <nav id="side">
+                <ul>
+                    <li>
+                        <a class="group" asp-controller="Home" asp-action="Index">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="home-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Feed </span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="group" asp-controller="Favorites" asp-action="Index">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="bookmark-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Favorites </span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="group" asp-controller="Friends" asp-action="Index">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="people-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Friends </span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Recommendations" asp-action="Index" class="nav-link">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="compass-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Discover </span>
+                            </div>
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+            <hr class="my-3 border-[#cabeca]" />
+            <nav id="side" class="font-medium text-sm border-top pt-1">
+                <ul class="mt-2">
+                    <li>
+                        <a class="group" asp-controller="User" asp-action="Details" asp-route-userId = "@loggedInUser.Id">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon class="text-xl text-[#4a3256]" name="person-outline"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Profile </span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </nav><nav id="side" class="font-medium text-sm border-top pt-1">
+                <ul class="mt-2">
+                    <li>
+                        <a class="group" asp-controller="Settings" asp-action="Index">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon class="text-xl text-[#4a3256]" name="settings-outline"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Settings </span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div id="site__sidebar__overlay" class="absolute top-0 left-0 z-20 w-screen h-screen xl:hidden backdrop-blur-sm"
+         uk-toggle="target: #site__sidebar; cls: !-translate-x-0">
+    </div>
+</div>
