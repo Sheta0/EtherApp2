@@ -183,24 +183,131 @@ namespace EtherApp.Data
 
         }
 
+        // In your SeedInterests method, update with keywords:
         private void SeedInterests(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Interest>().HasData(
-                new Interest { Id = 1, Name = "Technology", Description = "Computing, software, gadgets", IconName = "laptop-outline" },
-                new Interest { Id = 2, Name = "Science", Description = "Research, discoveries, nature", IconName = "flask-outline" },
-                new Interest { Id = 3, Name = "Art", Description = "Visual arts, design, photography", IconName = "color-palette-outline" },
-                new Interest { Id = 4, Name = "Music", Description = "All genres, instruments, concerts", IconName = "musical-notes-outline" },
-                new Interest { Id = 5, Name = "Sports", Description = "Athletics, teams, fitness", IconName = "football-outline" },
-                new Interest { Id = 6, Name = "Travel", Description = "Destinations, adventures, tourism", IconName = "airplane-outline" },
-                new Interest { Id = 7, Name = "Food", Description = "Cooking, recipes, restaurants", IconName = "restaurant-outline" },
-                new Interest { Id = 8, Name = "Fashion", Description = "Clothing, style, trends", IconName = "shirt-outline" },
-                new Interest { Id = 9, Name = "Gaming", Description = "Video games, board games", IconName = "game-controller-outline" },
-                new Interest { Id = 10, Name = "Books", Description = "Literature, authors, reading", IconName = "book-outline" },
-                new Interest { Id = 11, Name = "Movies", Description = "Films, cinema, directors", IconName = "film-outline" },
-                new Interest { Id = 12, Name = "Health", Description = "Wellness, fitness, medicine", IconName = "fitness-outline" },
-                new Interest { Id = 13, Name = "Business", Description = "Entrepreneurship, startups", IconName = "briefcase-outline" },
-                new Interest { Id = 14, Name = "Education", Description = "Learning, teaching, academia", IconName = "school-outline" },
-                new Interest { Id = 15, Name = "Politics", Description = "Government, policy, activism", IconName = "podium-outline" }
+                new Interest
+                {
+                    Id = 1,
+                    Name = "Technology",
+                    Description = "Computing, software, gadgets",
+                    IconName = "laptop-outline",
+                    Keywords = "tech,computer,software,programming,code,developer,app,AI,artificial intelligence,digital,innovation,hardware"
+                },
+                new Interest
+                {
+                    Id = 2,
+                    Name = "Science",
+                    Description = "Research, discoveries, nature",
+                    IconName = "flask-outline",
+                    Keywords = "science,research,study,experiment,lab,discovery,physics,biology,chemistry,astronomy,hypothesis,theory"
+                },
+                new Interest
+                {
+                    Id = 3,
+                    Name = "Art",
+                    Description = "Visual arts, design, photography",
+                    IconName = "color-palette-outline",
+                    Keywords = "art,paint,drawing,design,creative,artist,sketch,canvas,gallery,exhibition,sculpture,illustration"
+                },
+                // Continue with the rest of your interests, adding keywords to each
+                new Interest
+                {
+                    Id = 4,
+                    Name = "Music",
+                    Description = "All genres, instruments, concerts",
+                    IconName = "musical-notes-outline",
+                    Keywords = "music,song,band,concert,album,guitar,piano,lyrics,melody,rhythm,instrument,performer,singer"
+                },
+                new Interest
+                {
+                    Id = 5,
+                    Name = "Sports",
+                    Description = "Athletics, teams, fitness",
+                    IconName = "football-outline",
+                    Keywords = "sport,team,game,play,athlete,fitness,exercise,competition,match,tournament,championship,league"
+                },
+                new Interest
+                {
+                    Id = 6,
+                    Name = "Travel",
+                    Description = "Destinations, adventures, tourism",
+                    IconName = "airplane-outline",
+                    Keywords = "travel,trip,vacation,destination,journey,explore,tourism,sightseeing,adventure,backpacking,resort,hotel"
+                },
+                new Interest
+                {
+                    Id = 7,
+                    Name = "Food",
+                    Description = "Cooking, recipes, restaurants",
+                    IconName = "restaurant-outline",
+                    Keywords = "food,recipe,cook,bake,meal,restaurant,dish,cuisine,ingredient,flavor,culinary,chef,gastronomy"
+                },
+                new Interest
+                {
+                    Id = 8,
+                    Name = "Fashion",
+                    Description = "Clothing, style, trends",
+                    IconName = "shirt-outline",
+                    Keywords = "fashion,style,clothes,outfit,trend,wear,designer,model,runway,collection,accessory,boutique"
+                },
+                new Interest
+                {
+                    Id = 9,
+                    Name = "Gaming",
+                    Description = "Video games, board games",
+                    IconName = "game-controller-outline",
+                    Keywords = "game,gaming,player,console,play,level,videogame,boardgame,roleplaying,strategy,puzzle,esports"
+                },
+                new Interest
+                {
+                    Id = 10,
+                    Name = "Books",
+                    Description = "Literature, authors, reading",
+                    IconName = "book-outline",
+                    Keywords = "book,read,author,novel,story,literature,fiction,nonfiction,biography,poetry,publish,chapter"
+                },
+                new Interest
+                {
+                    Id = 11,
+                    Name = "Movies",
+                    Description = "Films, cinema, directors",
+                    IconName = "film-outline",
+                    Keywords = "movie,film,cinema,actor,director,watch,scene,screenplay,Hollywood,blockbuster,indie,documentary"
+                },
+                new Interest
+                {
+                    Id = 12,
+                    Name = "Health",
+                    Description = "Wellness, fitness, medicine",
+                    IconName = "fitness-outline",
+                    Keywords = "health,wellness,medical,doctor,exercise,diet,nutrition,therapy,mindfulness,medicine,workout,vitality"
+                },
+                new Interest
+                {
+                    Id = 13,
+                    Name = "Business",
+                    Description = "Entrepreneurship, startups",
+                    IconName = "briefcase-outline",
+                    Keywords = "business,company,startup,entrepreneur,market,invest,finance,economy,strategy,management,leadership,innovation"
+                },
+                new Interest
+                {
+                    Id = 14,
+                    Name = "Education",
+                    Description = "Learning, teaching, academia",
+                    IconName = "school-outline",
+                    Keywords = "education,learn,teach,student,school,university,knowledge,academic,course,degree,professor,curriculum"
+                },
+                new Interest
+                {
+                    Id = 15,
+                    Name = "Politics",
+                    Description = "Government, policy, activism",
+                    IconName = "podium-outline",
+                    Keywords = "politics,government,policy,vote,election,law,democracy,debate,campaign,party,legislation,advocacy"
+                }
             );
         }
     }

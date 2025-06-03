@@ -33,9 +33,16 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFriendsService, FriendsService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<IContentAnalysisService, ContentAnalysisService>();
 builder.Services.AddScoped<IInterestService, InterestService>();
 
+// Add these lines to your service registration
+builder.Services.AddHttpClient("HuggingFace", client =>
+{
+    // Base configuration for the HttpClient
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddScoped<IContentAnalysisService, HuggingFaceContentAnalysisService>();
 
 
 // Identity Configuration

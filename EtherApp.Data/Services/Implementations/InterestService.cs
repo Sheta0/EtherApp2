@@ -1,5 +1,4 @@
-﻿// Services/InterestService.cs
-using EtherApp.Data;
+﻿using EtherApp.Data;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services;
 using EtherApp.Data.Services.Interfaces;
@@ -86,16 +85,19 @@ public class InterestService : IInterestService
         await _context.SaveChangesAsync();
     }
 
-    // In InterestService.cs - update the UpdateUserInterestWeightsAsync method
-
     public async Task UpdateUserInterestWeightsAsync(int userId, int postId, InteractionType interactionType)
     {
-        // Get post interests
+        // Get post interests - consider including the Interest entity for better context
         var postInterests = await _context.PostInterests
             .Where(pi => pi.PostId == postId)
             .ToListAsync();
 
         if (!postInterests.Any()) return;
+
+        // Get all user's interests in one query instead of querying for each interest
+        var userInterests = await _context.UserInterests
+            .Where(ui => ui.UserId == userId && postInterests.Select(pi => pi.InterestId).Contains(ui.InterestId))
+            .ToDictionaryAsync(ui => ui.InterestId, ui => ui);
 
         // Weight factors based on interaction type
         double weightFactor = interactionType switch
@@ -104,37 +106,35 @@ public class InterestService : IInterestService
             InteractionType.Like => 0.2,
             InteractionType.Comment => 0.3,
             InteractionType.Favorite => 0.4,
-            InteractionType.Create => 0.6, // Higher weight for content creation
+            InteractionType.Create => 0.6,
             _ => 0.1
         };
 
-        // Update user interest weights
+        // Batch the changes instead of making individual queries
+        var interestsToAdd = new List<UserInterest>();
+
         foreach (var postInterest in postInterests)
         {
-            var userInterest = await _context.UserInterests
-                .FirstOrDefaultAsync(ui =>
-                    ui.UserId == userId &&
-                    ui.InterestId == postInterest.InterestId);
-
-            if (userInterest == null)
+            if (userInterests.TryGetValue(postInterest.InterestId, out var userInterest))
             {
-                // Create new user interest if it doesn't exist
-                userInterest = new UserInterest
-                {
-                    UserId = userId,
-                    InterestId = postInterest.InterestId,
-                    Weight = postInterest.Score * weightFactor,
-                    DateAdded = DateTime.Now
-                };
-
-                await _context.UserInterests.AddAsync(userInterest);
+                // Normalize weights to prevent unbounded growth - cap at 5.0
+                userInterest.Weight = Math.Min(5.0, (userInterest.Weight * 0.7) + (postInterest.Score * weightFactor * 0.3));
             }
             else
             {
-                // Update existing interest weight using exponential moving average
-                userInterest.Weight = (userInterest.Weight * 0.7) + (postInterest.Score * weightFactor * 0.3);
-                _context.UserInterests.Update(userInterest);
+                interestsToAdd.Add(new UserInterest
+                {
+                    UserId = userId,
+                    InterestId = postInterest.InterestId,
+                    Weight = Math.Min(1.0, postInterest.Score * weightFactor), // Capped at 1.0 initially
+                    DateAdded = DateTime.Now
+                });
             }
+        }
+
+        if (interestsToAdd.Any())
+        {
+            await _context.UserInterests.AddRangeAsync(interestsToAdd);
         }
 
         await _context.SaveChangesAsync();
@@ -142,17 +142,27 @@ public class InterestService : IInterestService
 
     public async Task<double> CalculateInterestSimilarityAsync(int userId1, int userId2)
     {
-        var user1Interests = await _context.UserInterests
+        // Fetch both users' interests in a single query for better performance
+        var allInterests = await _context.UserInterests
+            .Where(ui => ui.UserId == userId1 || ui.UserId == userId2)
+            .ToListAsync();
+            
+        var user1Interests = allInterests
             .Where(ui => ui.UserId == userId1)
-            .ToDictionaryAsync(ui => ui.InterestId, ui => ui.Weight);
-
-        var user2Interests = await _context.UserInterests
+            .ToDictionary(ui => ui.InterestId, ui => ui.Weight);
+            
+        var user2Interests = allInterests
             .Where(ui => ui.UserId == userId2)
-            .ToDictionaryAsync(ui => ui.InterestId, ui => ui.Weight);
+            .ToDictionary(ui => ui.InterestId, ui => ui.Weight);
 
         if (!user1Interests.Any() || !user2Interests.Any())
             return 0;
 
+        // Shared interests should matter more than just having similar profiles
+        var sharedInterestIds = user1Interests.Keys.Intersect(user2Interests.Keys).ToList();
+        var sharedInterestCount = sharedInterestIds.Count;
+        var sharedInterestBonus = sharedInterestCount > 0 ? Math.Min(0.2, sharedInterestCount * 0.05) : 0;
+        
         // Get all unique interest IDs
         var allInterestIds = user1Interests.Keys.Union(user2Interests.Keys).ToList();
 
@@ -175,23 +185,66 @@ public class InterestService : IInterestService
             return 0;
 
         double similarity = dotProduct / (Math.Sqrt(norm1) * Math.Sqrt(norm2));
-
-        // Convert to percentage
+        
+        // Add bonus for shared interests and convert to percentage
+        similarity = Math.Min(1.0, similarity + sharedInterestBonus);
         return Math.Round(similarity * 100);
     }
 
     public async Task<List<(User User, double Similarity)>> GetSimilarUsersAsync(int userId, int count = 5)
     {
-        var allUsers = await _context.Users
-            .Where(u => u.Id != userId)
+        // Load the current user's interests first
+        var userInterests = await _context.UserInterests
+            .Where(ui => ui.UserId == userId)
             .ToListAsync();
-
+            
+        if (!userInterests.Any())
+        {
+            return new List<(User User, double Similarity)>();
+        }
+        
+        // Find users who share at least one interest (much more efficient)
+        var interestIds = userInterests.Select(ui => ui.InterestId).ToList();
+        var potentialSimilarUserIds = await _context.UserInterests
+            .Where(ui => ui.UserId != userId && interestIds.Contains(ui.InterestId))
+            .Select(ui => ui.UserId)
+            .Distinct()
+            .Take(20) // Reasonable limit for efficiency
+            .ToListAsync();
+            
+        var potentialSimilarUsers = await _context.Users
+            .Where(u => potentialSimilarUserIds.Contains(u.Id))
+            .ToListAsync();
+            
         var result = new List<(User User, double Similarity)>();
 
-        foreach (var user in allUsers)
+        foreach (var user in potentialSimilarUsers)
         {
             var similarity = await CalculateInterestSimilarityAsync(userId, user.Id);
-            result.Add((user, similarity));
+            if (similarity > 0)  // Only include users with some similarity
+            {
+                result.Add((user, similarity));
+            }
+        }
+
+        // If we don't have enough similar users through shared interests,
+        // get some additional users to meet the requested count
+        if (result.Count < count)
+        {
+            var additionalUsersNeeded = count - result.Count;
+            var existingUserIds = result.Select(r => r.User.Id).ToList();
+            existingUserIds.Add(userId); // Exclude current user too
+            
+            var additionalUsers = await _context.Users
+                .Where(u => !existingUserIds.Contains(u.Id))
+                .Take(additionalUsersNeeded)
+                .ToListAsync();
+                
+            foreach (var user in additionalUsers)
+            {
+                var similarity = await CalculateInterestSimilarityAsync(userId, user.Id);
+                result.Add((user, similarity));
+            }
         }
 
         return result

@@ -4,6 +4,22 @@
     <div class="max-w-[1200px] mx-auto" id="js-oversized">
         <div class="mx-auto flex-1">
             <div class="md:max-w-[700px] mx-auto">
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-[#cabeca] mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-[#4a3256]">Admin Tools</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <a asp-controller="Admin" asp-action="TestContentAnalysis" class="flex items-center p-4 border border-[#cabeca] rounded-lg hover:border-[#4a3256] hover:bg-[#eadbf0]/30 transition-all">
+                            <div class="mr-3 bg-[#eadbf0] p-2 rounded-full">
+                                <ion-icon name="analytics-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-[#4a3256]">Content Analysis Tool</h3>
+                                <p class="text-sm text-[#4a3256]/70">Test how content is analyzed for interests</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
                 <!-- Admin Dashboard Header -->
                 <div class="bg-white rounded-xl shadow-sm p-5 border border-[#cabeca] mb-6">
                     <h1 class="text-2xl font-bold text-[#4a3256] mb-2">Admin Dashboard</h1>
@@ -114,7 +130,7 @@
 </main>
 
 <script>
-    // Auto-hide notifications after 5 seconds
+
     document.addEventListener('DOMContentLoaded', function() {
         const notifications = document.querySelectorAll('[role="alert"]');
         if (notifications.length > 0) {

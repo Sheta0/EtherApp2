@@ -1,0 +1,85 @@
+﻿@model ContentAnalysisViewModel
+@{
+    ViewData["Title"] = "Test Content Analysis";
+}
+
+<main id="site__main" class="2xl:ml-0 xl:ml-0 p-4 h-100 mt-[--m-top] bg-[#eadbf0]">
+    <div class="max-w-[1200px] mx-auto" id="js-oversized">
+        <div class="mx-auto flex-1">
+            <div class="md:max-w-[700px] mx-auto">
+
+                <!-- Page Header -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-[#cabeca] mb-6">
+                    <h1 class="text-2xl font-bold text-[#4a3256] mb-2">Content Analysis Tester</h1>
+                    <p class="text-[#4a3256]/80">Test how the system analyzes content and assigns interests</p>
+                    <div class="mt-3">
+                        <a asp-controller="Admin" asp-action="Index" class="text-[#4a3256] hover:underline flex items-center gap-1">
+                            <ion-icon name="arrow-back-outline"></ion-icon>
+                            Back to Admin Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Content Analysis Form -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-[#cabeca] mb-6">
+                    <form method="post">
+                        <div class="mb-4">
+                            <label for="Content" class="block text-[#4a3256] font-medium mb-2">Content to Analyze:</label>
+                            <textarea asp-for="Content" rows="5"
+                                      class="w-full px-3 py-2 border border-[#cabeca] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4a3256]"
+                                      placeholder="Enter text to analyze its interests..."></textarea>
+                        </div>
+                        <button type="submit" class="bg-[#4a3256] hover:bg-[#3a2644] text-white px-4 py-2 rounded-lg transition-all">
+                            Analyze Content
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Section -->
+                @if (Model.Results.Any())
+                {
+                    <div class="bg-white rounded-xl shadow-sm p-5 border border-[#cabeca] mb-6">
+                        <h2 class="text-xl font-semibold text-[#4a3256] mb-4">Analysis Results</h2>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="border-b border-[#cabeca]">
+                                    <tr>
+                                        <th class="py-2 px-4 text-left text-[#4a3256] font-medium">Interest</th>
+                                        <th class="py-2 px-4 text-left text-[#4a3256] font-medium">Score</th>
+                                        <th class="py-2 px-4 text-left text-[#4a3256] font-medium">Relevant Keywords</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var result in Model.Results.OrderByDescending(r => r.Score))
+                                    {
+                                        <tr class="border-b border-[#cabeca] hover:bg-[#eadbf0]/20 transition-colors">
+                                            <td class="py-3 px-4 text-[#4a3256]">@result.Interest</td>
+                                            <td class="py-3 px-4 text-[#4a3256]">
+                                                <div class="flex items-center">
+                                                    <div class="h-2 w-24 bg-gray-200 rounded overflow-hidden mr-2">
+                                                        <div class="h-full bg-[#4a3256]" style="width: @(result.Score * 100)%"></div>
+                                                    </div>
+                                                    <span>@((result.Score * 100).ToString("F1"))%</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4 text-[#4a3256]">
+                                                <div class="flex flex-wrap gap-1">
+                                                    @foreach (var keyword in result.Keywords.Split(',').Take(5))
+                                                    {
+                                                        <span class="bg-[#eadbf0] text-[#4a3256] text-xs px-2 py-1 rounded-full">@keyword</span>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</main>
