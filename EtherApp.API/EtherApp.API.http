@@ -1,4 +1,4 @@
-@EtherApp.API_HostAddress = http://localhost:5237
+@EtherApp.API_HostAddress = http://localhost:5081
 
 GET {{EtherApp.API_HostAddress}}/weatherforecast/
 Accept: application/json

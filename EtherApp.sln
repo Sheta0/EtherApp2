@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtherApp", "EtherApp\EtherA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtherApp.Data", "EtherApp.Data\EtherApp.Data.csproj", "{4FE9F19A-61EE-44C2-854A-21829CB520F3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtherApp.API", "EtherApp.API\EtherApp.API.csproj", "{0DDCC97B-A8AA-4195-AF9B-87784601D51F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4FE9F19A-61EE-44C2-854A-21829CB520F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FE9F19A-61EE-44C2-854A-21829CB520F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FE9F19A-61EE-44C2-854A-21829CB520F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DDCC97B-A8AA-4195-AF9B-87784601D51F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DDCC97B-A8AA-4195-AF9B-87784601D51F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DDCC97B-A8AA-4195-AF9B-87784601D51F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DDCC97B-A8AA-4195-AF9B-87784601D51F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
