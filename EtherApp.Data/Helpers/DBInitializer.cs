@@ -36,7 +36,7 @@ namespace EtherApp.Data.Helpers
                     Email = "theimpossible000@gmail.com",
                     FullName = "Ahmed Sheta",
                     Bio = "Original developer of EtherApp. I enjoy tech innovations and coding.",
-                    ProfilePictureUrl = "~/images/avatar/User.jpg",
+                    ProfilePictureUrl = "images/avatar/User.jpg",
                     EmailConfirmed = true
                 };
 
@@ -53,7 +53,7 @@ namespace EtherApp.Data.Helpers
                     Email = "ahmedsheta834@gmail.com",
                     FullName = "Sheta Admin",
                     Bio = "Admin account for system management.",
-                    ProfilePictureUrl = "~/images/avatar/User.png",
+                    ProfilePictureUrl = "images/avatar/User.png",
                     EmailConfirmed = true
                 };
 
@@ -72,7 +72,7 @@ namespace EtherApp.Data.Helpers
                     Email = "tech@example.com",
                     FullName = "Alex Tech",
                     Bio = "Software engineer with passion for AI and emerging technologies. Always learning!",
-                    ProfilePictureUrl = "~/images/avatar/User.png",
+                    ProfilePictureUrl = "images/avatar/User.png",
                     EmailConfirmed = true
                 };
                 await userManager.CreateAsync(techUser, "Test123!");
@@ -85,7 +85,7 @@ namespace EtherApp.Data.Helpers
                     Email = "arts@example.com",
                     FullName = "Jamie Creative",
                     Bio = "Musician, painter, and photography enthusiast. Art is my way of expressing emotions.",
-                    ProfilePictureUrl = "~/images/avatar/User.png",
+                    ProfilePictureUrl = "images/avatar/User.png",
                     EmailConfirmed = true
                 };
                 await userManager.CreateAsync(artsUser, "Test123!");
@@ -98,7 +98,7 @@ namespace EtherApp.Data.Helpers
                     Email = "sports@example.com",
                     FullName = "Sam Athletic",
                     Bio = "Marathon runner, basketball player and fitness trainer. Health and sports are my passion!",
-                    ProfilePictureUrl = "~/images/avatar/User.png",
+                    ProfilePictureUrl = "images/avatar/User.png",
                     EmailConfirmed = true
                 };
                 await userManager.CreateAsync(sportsUser, "Test123!");
@@ -111,7 +111,7 @@ namespace EtherApp.Data.Helpers
                     Email = "travel@example.com",
                     FullName = "Morgan Foodie",
                     Bio = "Exploring the world one dish at a time. Food blogger and travel addict.",
-                    ProfilePictureUrl = "~/images/avatar/User.png",
+                    ProfilePictureUrl = "images/avatar/User.png",
                     EmailConfirmed = true
                 };
                 await userManager.CreateAsync(foodTravelUser, "Test123!");
@@ -124,7 +124,7 @@ namespace EtherApp.Data.Helpers
                     Email = "business@example.com",
                     FullName = "Taylor Business",
                     Bio = "Business consultant, educator, and startup mentor. Passionate about entrepreneurship.",
-                    ProfilePictureUrl = "~/images/avatar/User.png",
+                    ProfilePictureUrl = "images/avatar/User.png",
                     EmailConfirmed = true
                 };
                 await userManager.CreateAsync(businessUser, "Test123!");
@@ -176,8 +176,7 @@ namespace EtherApp.Data.Helpers
                         }
                     });
 
-                    // Seed initial interests for tech user
-                    await interestService.UpdateUserInterestsAsync(techUser.Id, new List<int> { 1, 2, 9, 14 }); // Technology, Science, Gaming, Education
+                    
                 }
 
                 // Arts posts (keywords: art, paint, drawing, design, creative, artist, music, song, band, concert, album, guitar, piano)
@@ -215,8 +214,6 @@ namespace EtherApp.Data.Helpers
                         }
                     });
 
-                    // Seed initial interests for arts user
-                    await interestService.UpdateUserInterestsAsync(artsUser.Id, new List<int> { 3, 4, 10, 11 }); // Art, Music, Books, Movies
                 }
 
                 // Sports posts (keywords: sport, team, game, play, athlete, fitness, exercise, health, wellness)
@@ -254,8 +251,6 @@ namespace EtherApp.Data.Helpers
                         }
                     });
 
-                    // Seed initial interests for sports user
-                    await interestService.UpdateUserInterestsAsync(sportsUser.Id, new List<int> { 5, 12 }); // Sports, Health
                 }
 
                 // Food & Travel posts (keywords: travel, trip, vacation, destination, journey, explore, food, recipe, cook, bake, meal, restaurant, dish)
@@ -293,8 +288,7 @@ namespace EtherApp.Data.Helpers
                         }
                     });
 
-                    // Seed initial interests for food & travel user
-                    await interestService.UpdateUserInterestsAsync(foodTravelUser.Id, new List<int> { 6, 7 }); // Travel, Food
+                    
                 }
 
                 // Business posts (keywords: business, company, startup, entrepreneur, market, invest, education)
@@ -332,8 +326,7 @@ namespace EtherApp.Data.Helpers
                         }
                     });
 
-                    // Seed initial interests for business user
-                    await interestService.UpdateUserInterestsAsync(businessUser.Id, new List<int> { 13, 14, 15 }); // Business, Education, Politics
+                    
                 }
 
                 // Add all posts to database

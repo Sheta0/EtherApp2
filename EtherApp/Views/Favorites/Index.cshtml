@@ -25,12 +25,7 @@
         </div>
         <div class="w-80 lg:block hidden">
             <div class="lg:space-y-4 lg:pb-8 sticky top-[calc(var(--m-top)+20px)]">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
-                    @await Component.InvokeAsync("SuggestedFriends")
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
-                    @await Component.InvokeAsync("Hashtags")
-                </div>
+                    @await Component.InvokeAsync("DiscoverPeopleSidebar")
             </div>
         </div>
     </div>

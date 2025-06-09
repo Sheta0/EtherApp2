@@ -40,14 +40,21 @@
                             </div>
                         </a>
                     </li>
-
+                    <li class="mb-1">
+                        <a asp-controller="Discovery" asp-action="Users" class="nav-link">
+                            <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
+                                <ion-icon name="people-circle-outline" class="text-xl text-[#4a3256]"></ion-icon>
+                                <span class="text-[#4a3256] font-medium"> Matching </span>
+                            </div>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <hr class="my-3 border-[#cabeca]" />
             <nav id="side" class="font-medium text-sm border-top pt-1">
                 <ul class="mt-2">
                     <li>
-                        <a class="group" asp-controller="User" asp-action="Details" asp-route-userId = "@loggedInUser.Id">
+                        <a class="group" asp-controller="User" asp-action="Details" asp-route-userId="@loggedInUser.Id">
                             <div class="flex items-center gap-3 py-3 px-3.5 rounded-xl hover:bg-[#eadbf0] transition-all">
                                 <ion-icon class="text-xl text-[#4a3256]" name="person-outline"></ion-icon>
                                 <span class="text-[#4a3256] font-medium"> Profile </span>

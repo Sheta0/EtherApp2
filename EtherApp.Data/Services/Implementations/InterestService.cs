@@ -203,10 +203,18 @@ public class InterestService : IInterestService
             return new List<(User User, double Similarity)>();
         }
         
+        // Get IDs of friends to exclude
+        var friendIds = await _context.Friendships
+            .Where(f => f.SenderId == userId || f.ReceiverId == userId)
+            .Select(f => f.SenderId == userId ? f.ReceiverId : f.SenderId)
+            .ToListAsync();
+        
         // Find users who share at least one interest (much more efficient)
         var interestIds = userInterests.Select(ui => ui.InterestId).ToList();
         var potentialSimilarUserIds = await _context.UserInterests
-            .Where(ui => ui.UserId != userId && interestIds.Contains(ui.InterestId))
+            .Where(ui => ui.UserId != userId && 
+                        !friendIds.Contains(ui.UserId) && // Exclude friends
+                        interestIds.Contains(ui.InterestId))
             .Select(ui => ui.UserId)
             .Distinct()
             .Take(20) // Reasonable limit for efficiency
@@ -228,12 +236,13 @@ public class InterestService : IInterestService
         }
 
         // If we don't have enough similar users through shared interests,
-        // get some additional users to meet the requested count
+        // get some additional users (who are not friends) to meet the requested count
         if (result.Count < count)
         {
             var additionalUsersNeeded = count - result.Count;
             var existingUserIds = result.Select(r => r.User.Id).ToList();
             existingUserIds.Add(userId); // Exclude current user too
+            existingUserIds.AddRange(friendIds); // Exclude friends
             
             var additionalUsers = await _context.Users
                 .Where(u => !existingUserIds.Contains(u.Id))
@@ -251,6 +260,49 @@ public class InterestService : IInterestService
             .OrderByDescending(u => u.Similarity)
             .Take(count)
             .ToList();
+    }
+
+    public async Task<List<Interest>> GetSharedInterestsAsync(int userId1, int userId2)
+    {
+        var user1Interests = await _context.UserInterests
+            .Where(ui => ui.UserId == userId1)
+            .Select(ui => ui.InterestId)
+            .ToListAsync();
+            
+        var sharedInterests = await _context.UserInterests
+            .Where(ui => ui.UserId == userId2 && user1Interests.Contains(ui.InterestId))
+            .Include(ui => ui.Interest)
+            .Select(ui => ui.Interest)
+            .ToListAsync();
+            
+        return sharedInterests;
+    }
+
+    // Enhancement to GetSimilarUsersAsync to include shared interests
+    public async Task<List<(User User, double Similarity, List<Interest> SharedInterests)>> GetSimilarUsersWithInterestsAsync(int userId, int count = 5)
+    {
+        // Reuse existing code to get similar users 
+        var similarUsers = await GetSimilarUsersAsync(userId, count);
+        
+        // Enhance with shared interests
+        var result = new List<(User User, double Similarity, List<Interest> SharedInterests)>();
+        
+        foreach (var (user, similarity) in similarUsers)
+        {
+            var sharedInterests = await GetSharedInterestsAsync(userId, user.Id);
+            result.Add((user, similarity, sharedInterests));
+        }
+        
+        return result;
+    }
+
+    public async Task<List<User>> GetUsersWithInterestsAsync(List<int> interestIds)
+    {
+        return await _context.UserInterests
+            .Where(ui => interestIds.Contains(ui.InterestId))
+            .Select(ui => ui.User)
+            .Distinct()
+            .ToListAsync();
     }
 }
 

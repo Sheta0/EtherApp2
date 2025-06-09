@@ -1,0 +1,104 @@
+@model EtherApp.ViewModels.Search.SearchResultsVM
+@{
+    ViewData["Title"] = "Search Results | ";
+}
+
+<div id="wrapper" class="main-content">
+    <main class="2xl:ml-[--w-side] lg:ml-[--w-side-sm] pt-[--m-top]">
+        <div class="max-w-[1220px] mx-auto p-4 md:p-6">
+
+            <!-- Search header -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-semibold text-[#4a3256]">
+                    @if (string.IsNullOrEmpty(Model.Query))
+                    {
+                        <span>Search</span>
+                    }
+                    else
+                    {
+                        <span>Results for: "@Model.Query"</span>
+                    }
+                </h1>
+            </div>
+
+            @if (string.IsNullOrEmpty(Model.Query))
+            {
+                <div class="bg-white rounded-lg shadow p-6 text-center">
+                    <div class="p-6">
+                        <ion-icon name="search-outline" class="text-6xl text-[#cabeca] mb-4"></ion-icon>
+                        <p class="text-[#4a3256]">Enter a search term above to find users and posts.</p>
+                    </div>
+                </div>
+            }
+            else if (!Model.Users.Any() && !Model.Posts.Any())
+            {
+                <div class="bg-white rounded-lg shadow p-6 text-center">
+                    <div class="p-6">
+                        <ion-icon name="search-outline" class="text-6xl text-[#cabeca] mb-4"></ion-icon>
+                        <p class="text-[#4a3256]">No results found for "@Model.Query"</p>
+                        <p class="text-[#cabeca] mt-2">Try different keywords or check your spelling</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Users section -->
+                @if (Model.Users.Any())
+                {
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold text-[#4a3256]">Users</h2>
+                            @if (Model.Users.Count >= 20)
+                            {
+                                <span class="text-sm text-[#cabeca]">Showing top 20 results</span>
+                            }
+                        </div>
+
+                        <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
+                            @foreach (var user in Model.Users)
+                            {
+                                <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                                    <a asp-controller="User" asp-action="Details" asp-route-userId="@user.Id" class="block p-4">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="@(string.IsNullOrEmpty(user.ProfilePictureUrl) ? "/images/avatar/User.png" : "/" + user.ProfilePictureUrl)"
+                                                 alt="@user.FullName" class="w-14 h-14 rounded-full border border-[#cabeca] object-cover">
+                                            <div>
+                                                <h3 class="font-semibold text-[#4a3256]">@user.FullName</h3>
+                                                <p class="text-sm text-[#cabeca]">@@@user.UserName</p>
+                                            </div>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(user.Bio))
+                                        {
+                                            <p class="text-[#4a3256] text-sm mt-3 line-clamp-2">@user.Bio</p>
+                                        }
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Posts section -->
+                @if (Model.Posts.Any())
+                {
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold text-[#4a3256]">Posts</h2>
+                            @if (Model.Posts.Count >= 20)
+                            {
+                                <span class="text-sm text-[#cabeca]">Showing top 20 results</span>
+                            }
+                        </div>
+
+                        <div class="space-y-4">
+                            @foreach (var post in Model.Posts)
+                            {
+                                <partial name="Home/_Post" model="post" />
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </main>
+</div>

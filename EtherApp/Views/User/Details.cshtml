@@ -266,11 +266,14 @@
                         </div>
                     </div>
 
-                    <hr class="my-4 border-[#cabeca]" />
                 }
 
-                @await Component.InvokeAsync("SuggestedFriends")
+                <!-- Add the discover people sidebar below suggested friends -->
+                
             </div>
+            <div class="mt-4">
+                    @await Component.InvokeAsync("DiscoverPeopleSidebar")
+                </div>
         </div>
     </div>
 </main>

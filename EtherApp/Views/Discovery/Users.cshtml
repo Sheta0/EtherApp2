@@ -1,0 +1,178 @@
+@model UserDiscoveryVM
+
+<main id="site__main" class="2xl:ml-[--w-side] xl:ml-[--w-side-sm] p-4 h-100vh mt-[--m-top] bg-gradient-to-b from-[#f0e6f5] to-[#eadbf0]">
+    <div class="max-w-[1200px] mx-auto" id="js-oversized">
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-[#4a3256]">
+                    Discover People
+                </h2>
+            </div>
+            
+            <!-- Interest Filtering Section -->
+            <div class="bg-white rounded-xl shadow-lg mb-6 p-5 border border-[#e0d1eb] backdrop-blur-sm bg-opacity-90 transition-all hover:shadow-xl">
+                <h3 class="text-lg font-semibold text-[#4a3256] mb-4">
+                    Filter by interests
+                </h3>
+                <form asp-controller="Discovery" asp-action="Users" method="get" id="interestFilterForm">
+                    <div class="flex flex-wrap gap-3 mb-4">
+                        <label class="inline-flex items-center bg-[#eadbf0] hover:bg-[#d2b9e0] rounded-full px-4 py-2 cursor-pointer transition-all transform hover:-translate-y-0.5 border border-[#d2b9e0]">
+                            <input type="checkbox" name="filterByMyInterests" value="true" class="form-checkbox mr-2 h-4 w-4 text-[#4a3256]"
+                                   @(Model.FilterByMyInterests ? "checked" : "")>
+                            <span class="text-sm font-medium text-[#4a3256]">Similar To Me</span>
+                        </label>
+
+                        @foreach (var interest in Model.AvailableInterests)
+                        {
+                            <label class="inline-flex items-center bg-[#eadbf0] hover:bg-[#d2b9e0] rounded-full px-4 py-2 cursor-pointer transition-all transform hover:-translate-y-0.5 border border-[#d2b9e0]">
+                                <input type="checkbox" name="interests" value="@interest.Id" class="form-checkbox mr-2 h-4 w-4 text-[#4a3256]"
+                                       @(Model.SelectedInterests?.Contains(interest.Id) == true ? "checked" : "")>
+                                <span class="text-sm font-medium text-[#4a3256]">@interest.Name</span>
+                            </label>
+                        }
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-[#4a3256] hover:bg-[#5a3d69] text-white text-sm rounded-lg px-5 py-2.5 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 font-medium">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            @if (!Model.DiscoveredUsers.Any())
+            {
+                <div class="bg-white rounded-xl shadow-md p-6 text-[#4a3256] font-medium border border-[#e0d1eb] w-full flex items-center justify-center gap-3">
+                    No users found matching your criteria. Try different interests.
+                </div>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    @foreach (var userItem in Model.DiscoveredUsers)
+                    {
+                        <div class="bg-white rounded-lg shadow-lg border border-[#e0d1eb] hover:shadow-2xl transition-all duration-200 overflow-hidden flex flex-col">
+                            <!-- Top section with match percentage and image -->
+                            <div class="relative p-4 flex flex-col items-center">
+                                <!-- Match Percentage Badge -->
+                                <div class="absolute top-2 right-2 bg-[#f5e9fa] text-[#6a4c7c] font-bold text-xs rounded-full px-3 py-1 shadow">
+                                    @userItem.MatchPercentage%
+                                </div>
+                                <!-- User Image -->
+                                <a asp-controller="User" asp-action="Details" asp-route-userId="@userItem.User.Id" class="mt-3 mb-2">
+                                    <img src="@Url.Content("~/" + (string.IsNullOrEmpty(userItem.User.ProfilePictureUrl) ? "images/avatar/User.png" : userItem.User.ProfilePictureUrl))"
+                                         class="w-24 h-24 rounded-full object-cover border-4 border-white shadow"
+                                         alt="@userItem.User.FullName">
+                                </a>
+                            </div>
+
+                            <!-- User info section -->
+                            <div class="p-4 flex-grow flex flex-col items-center">
+                                <!-- User Name & Username -->
+                                <div class="text-center mb-3">
+                                    <a asp-controller="User" asp-action="Details" asp-route-userId="@userItem.User.Id"
+                                       class="font-semibold text-lg text-[#4a3256] hover:underline">
+                                        @userItem.User.FullName
+                                    </a>
+                                    <div class="text-xs text-[#8c7c99] mt-1">@userItem.User.UserName</div>
+                                </div>
+                                
+                                <!-- Post Count -->
+                                <div class="text-center text-xs text-[#8c7c99] mb-2">
+                                    @userItem.PostCount posts
+                                </div>
+                                
+                                <!-- Shared Interests -->
+                                @if (userItem.SharedInterests?.Any() == true)
+                                {
+                                    <div class="flex flex-wrap justify-center gap-1 mb-3">
+                                        @foreach (var interest in userItem.SharedInterests.Take(3))
+                                        {
+                                            <span class="bg-[#eadbf0] text-[#4a3256] text-xs rounded-full px-2 py-1 font-medium border border-[#d2b9e0]">@interest.Name</span>
+                                        }
+                                        @if (userItem.SharedInterests.Count > 3)
+                                        {
+                                            <span class="text-xs text-[#8c7c99]">+@(userItem.SharedInterests.Count - 3)</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="px-4 pb-4 w-full">
+                                <div class="flex gap-2">
+                                    <a asp-controller="User" asp-action="Details" asp-route-userId="@userItem.User.Id"
+                                       class="flex-1 bg-[#eadbf0] hover:bg-[#d2b9e0] text-[#4a3256] font-medium text-xs rounded-lg py-2 text-center transition-all">
+                                        View Profile
+                                    </a>
+                                    @if (!userItem.IsFriend && !userItem.HasPendingFriendRequest)
+                                    {
+                                        <form asp-controller="Friends" asp-action="SendRequest" method="post" class="flex-1">
+                                            <input type="hidden" name="receiverId" value="@userItem.User.Id" />
+                                            <button type="submit"
+                                                    class="w-full bg-[#4a3256] hover:bg-[#5a3d69] text-xs text-white font-medium rounded-lg py-2 transition-all">
+                                                Add Friend
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (userItem.HasPendingFriendRequest)
+                                    {
+                                        <span class="flex-1 bg-gray-100 text-gray-500 text-xs font-medium text-center rounded-lg py-2">
+                                            Request Sent
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="flex-1 bg-green-100 text-green-700 text-xs font-medium text-center rounded-lg py-2">
+                                            Friends
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="flex justify-center mt-8">
+                        <div class="inline-flex bg-white rounded-lg shadow-md overflow-hidden">
+                            @if (Model.CurrentPage > 1)
+                            {
+                                <a asp-controller="Discovery" asp-action="Users" 
+                                   asp-route-page="@(Model.CurrentPage - 1)"
+                                   asp-route-filterByMyInterests="@Model.FilterByMyInterests"
+                                   asp-route-interests="@Model.SelectedInterests"
+                                   class="px-4 py-2 border-r text-[#4a3256] hover:bg-[#eadbf0] transition-colors">
+                                    Prev
+                                </a>
+                            }
+
+                            @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                            {
+                                <a asp-controller="Discovery" asp-action="Users"
+                                   asp-route-page="@i"
+                                   asp-route-filterByMyInterests="@Model.FilterByMyInterests"
+                                   asp-route-interests="@Model.SelectedInterests"
+                                   class="px-4 py-2 border-r font-medium @(i == Model.CurrentPage ? "bg-[#4a3256] text-white" : "text-[#4a3256] hover:bg-[#eadbf0] transition-colors")">
+                                    @i
+                                </a>
+                            }
+
+                            @if (Model.CurrentPage < Model.TotalPages)
+                            {
+                                <a asp-controller="Discovery" asp-action="Users"
+                                   asp-route-page="@(Model.CurrentPage + 1)"
+                                   asp-route-filterByMyInterests="@Model.FilterByMyInterests"
+                                   asp-route-interests="@Model.SelectedInterests"
+                                   class="px-4 py-2 text-[#4a3256] hover:bg-[#eadbf0] transition-colors">
+                                    Next
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</main>

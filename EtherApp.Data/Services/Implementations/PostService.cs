@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EtherApp.Data.Helpers.Enums;
 
 namespace EtherApp.Data.Services.Implementations
 {
@@ -102,6 +103,9 @@ namespace EtherApp.Data.Services.Implementations
             if (!string.IsNullOrWhiteSpace(post.Content))
             {
                 await interestService.ProcessPostInterestsAsync(post.Id, post.Content);
+                
+                // Add this line to update the user's own interests based on their post
+                await interestService.UpdateUserInterestWeightsAsync(post.UserId, post.Id, InteractionType.Create);
             }
 
             return post;
@@ -253,26 +257,29 @@ namespace EtherApp.Data.Services.Implementations
 
             if (!userInterests.Any())
             {
-                // If user has no interests yet, return recent posts
+                // If user has no interests yet, return recent posts (excluding own posts)
                 return await _context.Posts
-                    .Where(p => !p.IsPrivate)
+                    .Where(p => !p.IsPrivate && p.UserId != userId) // Exclude own posts
                     .OrderByDescending(p => p.DateCreated)
                     .Take(count)
                     .Include(p => p.User)
                     .Include(p => p.Like)
-                    .Include(p => p.Comment)
+                    .Include(p => p.Comment).ThenInclude(c => c.User)
                     .Include(p => p.Favorites)
+                    .Include(p => p.Reports)
+                    .Include(p => p.Interests).ThenInclude(i => i.Interest)
                     .ToListAsync();
             }
 
-            // Get all public posts with their interest scores
+            // Get all public posts with their interest scores (excluding own posts)
             var posts = await _context.Posts
-                .Where(p => !p.IsPrivate)
-                .Include(p => p.Interests)
+                .Where(p => !p.IsPrivate && p.UserId != userId) // Exclude own posts
                 .Include(p => p.User)
                 .Include(p => p.Like)
-                .Include(p => p.Comment)
+                .Include(p => p.Comment).ThenInclude(c => c.User)
                 .Include(p => p.Favorites)
+                .Include(p => p.Reports)
+                .Include(p => p.Interests).ThenInclude(i => i.Interest)
                 .ToListAsync();
 
             // Calculate relevance score for each post based on user interests

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EtherApp.Data.Helpers.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace EtherApp.Data.Models
 {
@@ -26,4 +27,5 @@ namespace EtherApp.Data.Models
         public ICollection<PostInterest> Interests { get; set; } = new List<PostInterest>();
 
     }
+
 }

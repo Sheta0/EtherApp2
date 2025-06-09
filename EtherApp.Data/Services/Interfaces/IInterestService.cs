@@ -14,5 +14,11 @@ namespace EtherApp.Data.Services.Interfaces
         Task UpdateUserInterestWeightsAsync(int userId, int postId, InteractionType interactionType);
         Task<double> CalculateInterestSimilarityAsync(int userId1, int userId2);
         Task<List<(User User, double Similarity)>> GetSimilarUsersAsync(int userId, int count = 5);
+        
+        Task<List<Interest>> GetSharedInterestsAsync(int userId1, int userId2);
+        
+        Task<List<(User User, double Similarity, List<Interest> SharedInterests)>> GetSimilarUsersWithInterestsAsync(int userId, int count = 5);
+        
+        Task<List<User>> GetUsersWithInterestsAsync(List<int> interestIds);
     }
 }

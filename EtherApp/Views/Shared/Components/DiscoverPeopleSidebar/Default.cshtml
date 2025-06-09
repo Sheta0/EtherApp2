@@ -1,0 +1,72 @@
+@model List<(EtherApp.Data.Models.User User, double Similarity, List<EtherApp.Data.Models.Interest> SharedInterests)>
+@{
+    var maxItemsToShow = 3;
+}
+
+<div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
+    <h3 class="font-semibold text-[#4a3256] mb-3">Discover People</h3>
+    
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-sm text-[#cabeca] mb-3">No user recommendations available at the moment.</div>
+    }
+    else
+    {
+        <div class="space-y-4 mb-4">
+            @foreach (var userInfo in Model.Take(maxItemsToShow))
+            {
+                var user = userInfo.User;
+                var similarity = userInfo.Similarity;
+                var sharedInterests = userInfo.SharedInterests;
+                
+                <div class="flex items-center gap-3">
+                    <a asp-controller="User" asp-action="Details" asp-route-userId="@user.Id" class="shrink-0">
+                        <img src="@Url.Content("~/" + (string.IsNullOrEmpty(user.ProfilePictureUrl) ? "images/avatar/User.png" : user.ProfilePictureUrl))"
+                             class="w-10 h-10 rounded-full object-cover border border-[#cabeca]" alt="@user.FullName">
+                    </a>
+                    <div class="flex-1 min-w-0">
+                        <a asp-controller="User" asp-action="Details" asp-route-userId="@user.Id"
+                           class="font-medium text-[#4a3256] hover:underline text-sm truncate block">@user.FullName</a>
+                        <div class="flex items-center">
+                            <span class="bg-[#4a3256] text-white text-xs rounded-full px-2 py-0.5">@((int)similarity)%</span>
+                            <span class="text-xs ml-1 text-[#cabeca]">match</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Use the existing add-friend-btn class to leverage the AJAX functionality -->
+                    <form asp-controller="Friends" asp-action="SendRequest" method="post" class="shrink-0">
+                        <input type="hidden" name="receiverId" value="@user.Id" />
+                        <button type="button" 
+                                class="add-friend-btn bg-[#4a3256] hover:bg-opacity-90 transition-colors text-xs text-white rounded px-3 py-1.5">
+                            Add Friend
+                        </button>
+                    </form>
+                </div>
+                
+                @if (sharedInterests.Any())
+                {
+                    <div class="flex flex-wrap gap-1 ml-[46px] mb-1 mt-1">
+                        @foreach (var interest in sharedInterests.Take(2))
+                        {
+                            <span class="bg-[#eadbf0] text-[#4a3256] text-xs rounded-full px-2 py-0.5">@interest.Name</span>
+                        }
+                        @if (sharedInterests.Count > 2)
+                        {
+                            <span class="text-xs text-[#cabeca]">+@(sharedInterests.Count - 2)</span>
+                        }
+                    </div>
+                }
+                
+                @if (Model.IndexOf(userInfo) < Math.Min(maxItemsToShow, Model.Count) - 1)
+                {
+                    <div class="border-b border-[#cabeca]"></div>
+                }
+            }
+        </div>
+    }
+    
+    <a asp-controller="Discovery" asp-action="Users" 
+       class="block w-full bg-[#eadbf0] hover:bg-[#d2b9e0] text-[#4a3256] text-center rounded-md py-2 text-sm font-medium transition-colors">
+        See More People
+    </a>
+</div>

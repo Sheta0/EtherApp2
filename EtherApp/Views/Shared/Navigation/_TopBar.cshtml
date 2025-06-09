@@ -25,7 +25,7 @@
     <div class="flex-1 relative">
         @* Search *@
         <div class="max-w-[1220px] mx-auto flex items-center">
-            <form id="search--box" class="relative xl:w-[480px] sm:w-96 rounded-full overflow-hidden z-20 bg-[#eadbf0] transition-all duration-300 ease-in-out max-md:hidden w-screen left-0 max-sm:fixed max-sm:top-2">
+            <form id="search--box" action="@Url.Action("Index", "Search")" method="get" class="relative xl:w-[480px] sm:w-96 rounded-full overflow-hidden z-20 bg-[#eadbf0] transition-all duration-300 ease-in-out max-md:hidden w-screen left-0 max-sm:fixed max-sm:top-2">
                 <ion-icon name="search-outline" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#4a3256]"></ion-icon>
                 <input type="text" name="query" placeholder="Search Posts, Friends..."
                        class="w-full pl-10 h-10 text-sm text-[#4a3256] bg-[#eadbf0] rounded-full focus:ring-1 focus:ring-[#4a3256] border-0" />
