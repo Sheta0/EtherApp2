@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EtherApp.Data\EtherApp.Data.csproj" />
+    <ProjectReference Include="..\EtherApp.Shared\EtherApp.Shared.csproj" />
   </ItemGroup>
 
 </Project>

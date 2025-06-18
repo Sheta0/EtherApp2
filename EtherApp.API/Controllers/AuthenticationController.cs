@@ -3,7 +3,7 @@ using EtherApp.API.Models;
 using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services.Interfaces;
-using EtherApp.ViewModels.Authentication;
+using EtherApp.Shared.ViewModels.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

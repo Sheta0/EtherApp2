@@ -4,7 +4,7 @@ using EtherApp.Data.Helpers.Constants;
 using EtherApp.Data.Helpers.Enums;
 using EtherApp.Data.Models;
 using EtherApp.Data.Services.Interfaces;
-using EtherApp.ViewModels.Home;
+using EtherApp.Shared.ViewModels.Home;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
