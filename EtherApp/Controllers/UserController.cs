@@ -1,5 +1,4 @@
-﻿// Controllers/UserController.cs
-using EtherApp.Data.Models;
+﻿using EtherApp.Data.Models;
 using EtherApp.Data.Services.Interfaces;
 using EtherApp.ViewModels.Users;
 using Microsoft.AspNetCore.Identity;
@@ -97,4 +96,65 @@ public class UserController(
         return RedirectToAction("Details", new { userId = user.Id });
     }
 
+    [HttpGet]
+    public async Task<JsonResult> GetUserRelatedPosts(int userId, int currentPostId)
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Json(new List<object>());
+        }
+
+        // Get user posts
+        var userPosts = await _postService.GetUserPostsAsync(userId, currentUser.Id);
+        
+        // Filter out the current post and take only a few recent ones
+        var relatedPosts = userPosts
+            .Where(p => p.Id != currentPostId)
+            .OrderByDescending(p => p.DateCreated)
+            .Take(3)
+            .Select(p => new
+            {
+                Id = p.Id,
+                Title = !string.IsNullOrEmpty(p.Content) 
+                    ? (p.Content.Length > 50 ? p.Content.Substring(0, 50) + "..." : p.Content) 
+                    : "Post without text",
+                CreatedDate = p.DateCreated,
+                DaysAgo = (DateTime.Now - p.DateCreated).Days,
+                HasImage = !string.IsNullOrEmpty(p.ImageUrl)
+            })
+            .ToList();
+
+        return Json(relatedPosts);
+    }
+
+    [HttpGet]
+    public async Task<JsonResult> GetUserStats(int userId)
+    {
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null)
+        {
+            return Json(new { success = false, message = "User not found" });
+        }
+
+        // Get post count
+        var userPosts = await _postService.GetUserPostsAsync(userId, userId);
+        var postCount = userPosts?.Count ?? 0;
+        
+        // Get friendship information using the FriendsService
+        var friendsService = HttpContext.RequestServices.GetService<IFriendsService>();
+        int friendsCount = 0;
+        
+        if (friendsService != null)
+        {
+            var userFriends = await friendsService.GetUserFriendsAsync(userId);
+            friendsCount = userFriends.Count;
+        }
+
+        return Json(new { 
+            success = true,
+            postCount = postCount,
+            friendsCount = friendsCount
+        });
+    }
 }

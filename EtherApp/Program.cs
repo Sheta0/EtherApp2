@@ -5,6 +5,7 @@ using EtherApp.Data.Models;
 using EtherApp.Data.Services;
 using EtherApp.Data.Services.Implementations;
 using EtherApp.Data.Services.Interfaces;
+using EtherApp.Middleware;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
@@ -111,6 +112,8 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseRoleBasedRedirect();
 
 app.MapControllerRoute(
     name: "default",

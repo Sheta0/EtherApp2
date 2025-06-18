@@ -134,6 +134,9 @@ namespace EtherApp.Data.Helpers
 
         public static async Task SeedAsync(AppDBContext appDBContext, IInterestService interestService)
         {
+            // Seed interests for users first
+            await SeedUserInterestsAsync(appDBContext, interestService);
+
             // Check if there are already posts in the database
             if (!appDBContext.Posts.Any())
             {
@@ -338,6 +341,95 @@ namespace EtherApp.Data.Helpers
                 {
                     await interestService.ProcessPostInterestsAsync(post.Id, post.Content);
                 }
+            }
+        }
+
+        private static async Task SeedUserInterestsAsync(AppDBContext appDBContext, IInterestService interestService)
+        {
+            // Skip if already seeded
+            if (appDBContext.UserInterests.Any())
+                return;
+
+            var users = appDBContext.Users.ToList();
+            var interests = await interestService.GetAllInterestsAsync();
+            if (!interests.Any())
+                return; // Can't proceed if we don't have interests
+
+            // Tech user interests
+            var techUser = users.FirstOrDefault(u => u.UserName == "techguru");
+            if (techUser != null)
+            {
+                var techInterests = interests
+                    .Where(i => new[] { 
+                        "Technology", "Programming", "Artificial Intelligence", "Computer Science", 
+                        "Software Development" 
+                    }.Contains(i.Name, StringComparer.OrdinalIgnoreCase))
+                    .Select(i => i.Id)
+                    .ToList();
+                
+                if (techInterests.Any())
+                    await interestService.UpdateUserInterestsAsync(techUser.Id, techInterests);
+            }
+
+            // Arts user interests
+            var artsUser = users.FirstOrDefault(u => u.UserName == "artsylover");
+            if (artsUser != null)
+            {
+                var artInterests = interests
+                    .Where(i => new[] { 
+                        "Art", "Music", "Painting", "Drawing", "Design", "Creativity" 
+                    }.Contains(i.Name, StringComparer.OrdinalIgnoreCase))
+                    .Select(i => i.Id)
+                    .ToList();
+                
+                if (artInterests.Any())
+                    await interestService.UpdateUserInterestsAsync(artsUser.Id, artInterests);
+            }
+
+            // Sports user interests
+            var sportsUser = users.FirstOrDefault(u => u.UserName == "fitlife");
+            if (sportsUser != null)
+            {
+                var sportsInterests = interests
+                    .Where(i => new[] { 
+                        "Sports", "Fitness", "Health", "Exercise", "Basketball", "Running" 
+                    }.Contains(i.Name, StringComparer.OrdinalIgnoreCase))
+                    .Select(i => i.Id)
+                    .ToList();
+                
+                if (sportsInterests.Any())
+                    await interestService.UpdateUserInterestsAsync(sportsUser.Id, sportsInterests);
+            }
+
+            // Food & Travel user interests
+            var foodTravelUser = users.FirstOrDefault(u => u.UserName == "wanderlust");
+            if (foodTravelUser != null)
+            {
+                var travelFoodInterests = interests
+                    .Where(i => new[] { 
+                        "Travel", "Food", "Cooking", "Culinary", "Exploration", "Culture" 
+                    }.Contains(i.Name, StringComparer.OrdinalIgnoreCase))
+                    .Select(i => i.Id)
+                    .ToList();
+                
+                if (travelFoodInterests.Any())
+                    await interestService.UpdateUserInterestsAsync(foodTravelUser.Id, travelFoodInterests);
+            }
+
+            // Business user interests
+            var businessUser = users.FirstOrDefault(u => u.UserName == "bizpro");
+            if (businessUser != null)
+            {
+                var businessInterests = interests
+                    .Where(i => new[] { 
+                        "Business", "Entrepreneurship", "Education", "Investment", 
+                        "Marketing", "Leadership" 
+                    }.Contains(i.Name, StringComparer.OrdinalIgnoreCase))
+                    .Select(i => i.Id)
+                    .ToList();
+                
+                if (businessInterests.Any())
+                    await interestService.UpdateUserInterestsAsync(businessUser.Id, businessInterests);
             }
         }
     }

@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@inject UserManager<User> UserManager
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isOnboarding = ViewContext.RouteData.Values["controller"]?.ToString() == "Onboarding";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -13,7 +20,7 @@
 </head>
 <body class="h-screen bg-[#eadbf0]">
     <div id="wrapper">
-        @if (User.Identity.IsAuthenticated)
+        @if (User.Identity.IsAuthenticated && !isOnboarding)
         {
             @* Topbar *@
             @if(User.IsInRole("Admin"))

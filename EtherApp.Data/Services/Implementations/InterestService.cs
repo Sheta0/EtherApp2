@@ -149,46 +149,56 @@ public class InterestService : IInterestService
             
         var user1Interests = allInterests
             .Where(ui => ui.UserId == userId1)
-            .ToDictionary(ui => ui.InterestId, ui => ui.Weight);
+            .ToDictionary(ui => ui.InterestId, ui => Math.Max(ui.Weight, 1.0)); // Ensure minimum weight
             
         var user2Interests = allInterests
             .Where(ui => ui.UserId == userId2)
-            .ToDictionary(ui => ui.InterestId, ui => ui.Weight);
+            .ToDictionary(ui => ui.InterestId, ui => Math.Max(ui.Weight, 1.0)); // Ensure minimum weight
 
         if (!user1Interests.Any() || !user2Interests.Any())
             return 0;
 
-        // Shared interests should matter more than just having similar profiles
+        // Find shared interests - this is the most important factor
         var sharedInterestIds = user1Interests.Keys.Intersect(user2Interests.Keys).ToList();
         var sharedInterestCount = sharedInterestIds.Count;
-        var sharedInterestBonus = sharedInterestCount > 0 ? Math.Min(0.2, sharedInterestCount * 0.05) : 0;
         
-        // Get all unique interest IDs
-        var allInterestIds = user1Interests.Keys.Union(user2Interests.Keys).ToList();
-
-        double dotProduct = 0;
-        double norm1 = 0;
-        double norm2 = 0;
-
-        // Calculate cosine similarity
-        foreach (var interestId in allInterestIds)
+        // If users share interests, ensure a minimum similarity score based on count
+        if (sharedInterestCount > 0)
         {
-            double w1 = user1Interests.GetValueOrDefault(interestId, 0);
-            double w2 = user2Interests.GetValueOrDefault(interestId, 0);
+            // Base similarity on count of shared interests (minimum 20% for 1 shared interest)
+            var baseScore = Math.Min(0.8, sharedInterestCount * 0.2);
+            
+            // Get all unique interest IDs
+            var allInterestIds = user1Interests.Keys.Union(user2Interests.Keys).ToList();
 
-            dotProduct += w1 * w2;
-            norm1 += w1 * w1;
-            norm2 += w2 * w2;
+            double dotProduct = 0;
+            double norm1 = 0;
+            double norm2 = 0;
+
+            // Calculate cosine similarity with the normalized weights
+            foreach (var interestId in allInterestIds)
+            {
+                double w1 = user1Interests.GetValueOrDefault(interestId, 0);
+                double w2 = user2Interests.GetValueOrDefault(interestId, 0);
+
+                dotProduct += w1 * w2;
+                norm1 += w1 * w1;
+                norm2 += w2 * w2;
+            }
+
+            // Only calculate cosine similarity if we have valid norms
+            double cosineSimilarity = 0;
+            if (norm1 > 0 && norm2 > 0)
+            {
+                cosineSimilarity = dotProduct / (Math.Sqrt(norm1) * Math.Sqrt(norm2));
+            }
+            
+            // Use the higher of the base score or cosine similarity
+            double finalSimilarity = Math.Max(baseScore, cosineSimilarity);
+            return Math.Round(finalSimilarity * 100);
         }
-
-        if (norm1 == 0 || norm2 == 0)
-            return 0;
-
-        double similarity = dotProduct / (Math.Sqrt(norm1) * Math.Sqrt(norm2));
         
-        // Add bonus for shared interests and convert to percentage
-        similarity = Math.Min(1.0, similarity + sharedInterestBonus);
-        return Math.Round(similarity * 100);
+        return 0; // No shared interests
     }
 
     public async Task<List<(User User, double Similarity)>> GetSimilarUsersAsync(int userId, int count = 5)

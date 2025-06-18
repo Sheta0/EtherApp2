@@ -1,0 +1,6 @@
+@EtherApp.API_HostAddress = http://localhost:5228
+
+GET {{EtherApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

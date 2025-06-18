@@ -1,0 +1,75 @@
+@{
+    Layout = "_OnboardingLayout";
+    ViewData["Title"] = "Set Up Your Profile";
+}
+
+@model SetupProfileViewModel
+
+<div class="min-h-screen bg-[#eadbf0] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-md">
+        <div class="bg-white rounded-xl shadow-lg p-6 border border-[#e0d1eb]">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-semibold text-[#4a3256]">Complete Your Profile</h2>
+                <p class="text-sm text-[#8c7c99] mt-2">Choose a unique username and upload a profile picture</p>
+            </div>
+            
+            <form asp-action="SetupProfile" method="post" enctype="multipart/form-data" class="space-y-6">
+                <div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm"></div>
+                
+                <div class="space-y-2">
+                    <label asp-for="UserName" class="text-[#4a3256] font-medium">Username</label>
+                    <input asp-for="UserName" class="w-full p-3 border border-[#cabeca] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4a3256]" />
+                    <span asp-validation-for="UserName" class="text-red-600 text-sm"></span>
+                    <p class="text-xs text-[#8c7c99]">Choose a unique username with 3-20 characters (letters, numbers, dots, underscores, and hyphens only)</p>
+                </div>
+                
+                <div class="space-y-3">
+                    <label class="text-[#4a3256] font-medium">Profile Picture (Optional)</label>
+                    
+                    <div class="flex flex-col items-center p-4 border-2 border-dashed border-[#cabeca] rounded-lg bg-[#f7f2f9]">
+                        <div id="imagePreview" class="mb-4 hidden">
+                            <img id="previewImg" class="max-h-48 rounded-lg shadow" />
+                        </div>
+                        
+                        <label class="cursor-pointer bg-[#eadbf0] hover:bg-[#d2b9e0] text-[#4a3256] py-2 px-4 rounded-lg transition-all">
+                            <span class="flex items-center">
+                                <ion-icon name="cloud-upload-outline" class="text-xl mr-2"></ion-icon>
+                                Choose Image
+                            </span>
+                            <input asp-for="ProfilePicture" type="file" accept="image/*" class="hidden" />
+                        </label>
+                        
+                        <p class="text-xs text-[#8c7c99] mt-2">Recommended size: 200x200 pixels</p>
+                    </div>
+                    <span asp-validation-for="ProfilePicture" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-[#4a3256] hover:bg-[#5a3d69] text-white py-3 rounded-lg font-medium transition-all">
+                        Continue to Next Step
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelector('input[name="ProfilePicture"]').addEventListener('change', function (e) {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('previewImg').src = event.target.result;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').classList.add('hidden');
+            }
+        });
+    </script>
+    
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

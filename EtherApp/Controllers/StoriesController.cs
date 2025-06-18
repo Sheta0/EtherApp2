@@ -14,16 +14,26 @@ namespace EtherApp.Controllers
     {
         private readonly IStoriesService _storiesService;
         private readonly IFilesService _filesService;
+        
         public StoriesController(IStoriesService storiesService, IFilesService filesService)
         {
             _storiesService = storiesService;
             _filesService = filesService;
         }
 
+        public async Task<IActionResult> Index()
+        {
+            var loggedInUser = GetUserId();
+            if (loggedInUser is null) return RedirectToLogin();
+
+            // Get stories from user and their friends
+            var userAndFriendStories = await _storiesService.GetUserAndFriendStoriesAsync(loggedInUser.Value);
+            return View(userAndFriendStories);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateStory(StoryVM storyVM)
         {
-
             var loggedInUser = GetUserId();
             if (loggedInUser is null) return RedirectToLogin();
 

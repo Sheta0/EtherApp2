@@ -11,13 +11,19 @@
         <div class="space-y-6 mt-6">
             <form asp-controller="Stories" asp-action="CreateStory" enctype="multipart/form-data">
                 <div class="w-full h-72 relative border border-[#cabeca] rounded-lg overflow-hidden bg-[#eadbf0]">
-                    <label class="flex flex-col justify-center items-center absolute inset-0 z-10 w-full cursor-pointer bg-gradient-to-t from-[#d2b9e0]/50 to-transparent">
-                        <input id="storyUpload" name="Image" type="file" accept="image/png, image/jpeg" hidden />
+                    <!-- Image Preview Container -->
+                    <div id="previewContainer" class="absolute inset-0 w-full h-full z-20" style="display: none;">
+                        <img id="storyPreview" class="w-full h-full object-cover" alt="Story preview" />
+                    </div>
+
+                    <!-- Upload Interface -->
+                    <div id="uploadInterface" class="absolute inset-0 z-10 flex flex-col items-center justify-center w-full bg-gradient-to-t from-[#d2b9e0]/50 to-transparent">
                         <ion-icon id="storyUploadIcon" name="image" class="text-4xl text-[#4a3256]"></ion-icon>
-                        <span id="storyUploadBtn" class="text-[#4a3256] mt-3 font-medium">Upload Your Image</span>
-                    </label>
-                    <img id="storyPreview" />
+                        <span id="storyUploadBtn" class="text-[#4a3256] mt-3 font-medium cursor-pointer">Upload Your Image</span>
+                        <input id="storyUpload" name="Image" type="file" accept="image/png, image/jpeg" class="hidden" />
+                    </div>
                 </div>
+
                 <div class="flex justify-between items-center mt-4">
                     <div class="flex items-start gap-3">
                         <ion-icon name="time-outline" class="text-3xl text-white rounded-full bg-[#4a3256] p-2"></ion-icon>
@@ -31,27 +37,55 @@
 </div>
 
 <script>
-    const storyUploadBtn = document.getElementById('storyUploadBtn');
-    const storyUploadIcon = document.getElementById('storyUploadIcon');
-    storyUploadBtn.addEventListener('click', () => {
-        event.preventDefault();
-        document.getElementById('storyUpload').click();
-    });
-
-    document.getElementById('storyUpload').addEventListener('change', (event) => {
-        const file = event.target.files[0];
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const storyUploadBtn = document.getElementById('storyUploadBtn');
+        const storyUpload = document.getElementById('storyUpload');
+        const previewContainer = document.getElementById('previewContainer');
         const storyPreview = document.getElementById('storyPreview');
+        const uploadInterface = document.getElementById('uploadInterface');
 
-        if (file) {
-            const reader = new FileReader();
-            storyUploadBtn.classList.add('hidden');
-            storyUploadIcon.classList.add('hidden');
-            reader.onload = (e) => {
-                storyPreview.src = e.target.result;
+        // Handle click on the upload button
+        storyUploadBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            storyUpload.click();
+        });
+
+        // Handle file selection
+        storyUpload.addEventListener('change', function(event) {
+            const file = this.files[0];
+
+            if (file) {
+                // Read and display the selected image
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    // Set the image source
+                    storyPreview.src = e.target.result;
+
+                    // Show the preview and hide the upload interface
+                    previewContainer.style.display = 'block';
+                    uploadInterface.style.display = 'none';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                // Reset if no file is selected
+                previewContainer.style.display = 'none';
+                uploadInterface.style.display = 'flex';
+                storyPreview.src = '';
             }
-            reader.readAsDataURL(file);
-        } else {
-            storyPreview.src = '';
-        }
+        });
+
+        // Reset on modal close
+        document.querySelector('.uk-modal-close').addEventListener('click', function() {
+            // Reset the form on close
+            setTimeout(() => {
+                previewContainer.style.display = 'none';
+                uploadInterface.style.display = 'flex';
+                storyPreview.src = '';
+                storyUpload.value = '';
+            }, 300);
+        });
     });
 </script>

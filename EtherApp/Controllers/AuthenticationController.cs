@@ -48,13 +48,13 @@ namespace EtherApp.Controllers
 
             if (result.Succeeded)
             {
-                if(User.IsInRole(AppRoles.Admin))
+                // Check if the user is in the Admin role using UserManager instead of User principal
+                if (await _userManager.IsInRoleAsync(existingUser, AppRoles.Admin))
                 {
                     return RedirectToAction("Index", "Admin");
                 }
                 return RedirectToAction("Index", "Home");
             }
-
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
             return View(loginVM);
@@ -96,7 +96,7 @@ namespace EtherApp.Controllers
                 await _userManager.AddToRoleAsync(user, AppRoles.User);
                 await _userManager.AddClaimAsync(user, new Claim(CustomClaim.FullName, user.FullName));
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Welcome", "Onboarding");
+                return RedirectToAction("SetupProfile", "Onboarding");
             }
 
             foreach (var error in result.Errors)

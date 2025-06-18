@@ -62,7 +62,6 @@ namespace EtherApp.Controllers
                 UserId = loggedInUser.Value
             };
 
-            // Create the post (this should process post interests internally)
             var createdPost = await _postsService.CreatePostAsync(newPost);
 
             // Only process hashtags if content is not empty

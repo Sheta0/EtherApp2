@@ -1,20 +1,38 @@
 ﻿@model List<Hashtag>
 
-<div class="flex justify-between text-white">
-    <h3 class="font-bold !text-white">Trends for you</h3>
-</div>
-<div class="space-y-3.5 capitalize text-xs font-normal mt-5 mb-2 text-white/90">
+<div class="rounded-lg bg-white shadow p-4">
+    <div class="flex justify-between items-center mb-3">
+        <h3 class="font-bold text-lg text-gray-800">Trends for you</h3>
+    </div>
 
-    @foreach (var hashtag in Model)
-    {
-        <a>
-            <div class="flex items-center gap-3 ">
-                <div class="flex-1">
-                    <h2 class="font-semibold !text-white">#@hashtag.Name</h2>
-                    <div class="mt-0.5 mb-4">@hashtag.Count posts</div>
+    <div class="divide-y divide-gray-100">
+        @foreach (var hashtag in Model)
+        {
+            <a asp-controller="Search" asp-action="Index" asp-route-query="@($"{hashtag.Name}")"
+               class="block py-3 px-1 hover:bg-gray-50 transition duration-150 rounded">
+                <div class="flex items-center">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5">
+                            <h2 class="font-semibold text-gray-800">@hashtag.Name</h2>
+                        </div>
+                        <div class="mt-1 text-xs text-gray-500">
+                            <span class="font-medium">@hashtag.Count</span> posts
+                        </div>
+                    </div>
+                    <div class="text-gray-400 hover:text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+                        </svg>
+                    </div>
                 </div>
-            </div>
-        </a>
-    }
+            </a>
+        }
+    </div>
 
+    @if (!Model.Any())
+    {
+        <div class="text-center py-4 text-gray-500">
+            No trending hashtags at the moment
+        </div>
+    }
 </div>

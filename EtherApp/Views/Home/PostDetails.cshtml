@@ -53,15 +53,11 @@
                     <div class="flex justify-between text-sm text-center py-2 border-t border-b border-[#cabeca] mb-3">
                         <div class="flex-1">
                             <p class="font-semibold text-[#4a3256]">Posts</p>
-                            <p class="text-[#cabeca]">@(new Random().Next(5, 50))</p>
+                            <p class="text-[#cabeca]" id="user-post-count">--</p>
                         </div>
                         <div class="flex-1">
-                            <p class="font-semibold text-[#4a3256]">Followers</p>
-                            <p class="text-[#cabeca]">@(new Random().Next(10, 500))</p>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-[#4a3256]">Following</p>
-                            <p class="text-[#cabeca]">@(new Random().Next(5, 200))</p>
+                            <p class="font-semibold text-[#4a3256]">Friends</p>
+                            <p class="text-[#cabeca]" id="user-friends-count">--</p>
                         </div>
                     </div>
 
@@ -71,52 +67,85 @@
                     </a>
                 </div>
 
-                <!-- Post Stats -->
+                <!-- Similar Posts -->
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
-                    <h3 class="font-semibold text-[#4a3256] mb-3">Post Activity</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2 text-sm text-[#4a3256]">
-                                <ion-icon name="heart" class="text-red-500"></ion-icon>
-                                <span>Likes</span>
+                    <h3 class="font-semibold text-[#4a3256] mb-3">More from this user</h3>
+                    <div class="space-y-3" id="related-posts-container">
+                        <!-- Content will be loaded via JavaScript -->
+                        <div class="text-center text-sm text-[#cabeca] py-2">
+                            <div class="inline-block animate-spin mr-2">
+                                <ion-icon name="reload-outline"></ion-icon>
                             </div>
-                            <span class="text-sm font-medium text-[#4a3256]">@Model.Like.Count</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2 text-sm text-[#4a3256]">
-                                <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
-                                <span>Comments</span>
-                            </div>
-                            <span class="text-sm font-medium text-[#4a3256]">@Model.Comment.Count</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2 text-sm text-[#4a3256]">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                                <span>Saves</span>
-                            </div>
-                            <span class="text-sm font-medium text-[#4a3256]">@Model.Favorites.Count</span>
+                            Loading related posts...
                         </div>
                     </div>
                 </div>
 
-                <!-- Similar Posts -->
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-[#cabeca]">
-                    <h3 class="font-semibold text-[#4a3256] mb-3">More from this user</h3>
-                    <div class="space-y-3">
-                        @for (int i = 0; i < 3; i++)
-                        {
-                            <div class="flex items-start gap-3 pb-2 @(i < 2 ? "border-b border-[#cabeca]" : "")">
-                                <div class="w-12 h-12 bg-[#eadbf0] rounded-md flex items-center justify-center shrink-0">
-                                    <ion-icon name="document-text" class="text-xl text-[#4a3256]"></ion-icon>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-[#4a3256] line-clamp-2">Sample post title from this user</p>
-                                    <p class="text-xs text-[#cabeca] mt-1">Posted @(i + 1)d ago</p>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        // Load related posts from the same user
+                        loadRelatedPosts(@Model.UserId, @Model.Id);
+
+                        // Load user statistics
+                        loadUserStats(@Model.UserId);
+                    });
+
+                    function loadUserStats(userId) {
+                        fetch(`/User/GetUserStats?userId=${userId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    document.getElementById('user-post-count').textContent = data.postCount;
+                                    document.getElementById('user-friends-count').textContent = data.friendsCount;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading user stats:', error);
+                            });
+                    }
+
+                    function loadRelatedPosts(userId, currentPostId) {
+                        fetch(`/User/GetUserRelatedPosts?userId=${userId}&currentPostId=${currentPostId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const container = document.getElementById('related-posts-container');
+                                container.innerHTML = '';
+
+                                if (data.length === 0) {
+                                    container.innerHTML = '<p class="text-sm text-[#cabeca]">No other posts from this user.</p>';
+                                    return;
+                                }
+
+                                data.forEach((post, index) => {
+                                    const isLast = index === data.length - 1;
+                                    const postElement = document.createElement('div');
+                                    postElement.className = `flex items-start gap-3 pb-2 ${!isLast ? 'border-b border-[#cabeca]' : ''}`;
+
+                                    // Make the entire post item clickable
+                                    postElement.style.cursor = 'pointer';
+                                    postElement.onclick = function() {
+                                        window.location.href = `/Home/PostDetails/${post.id}`;
+                                    };
+
+                                    postElement.innerHTML = `
+                                        <div class="w-12 h-12 bg-[#eadbf0] rounded-md flex items-center justify-center shrink-0">
+                                            <ion-icon name="${post.hasImage ? 'image-outline' : 'document-text'}" class="text-xl text-[#4a3256]"></ion-icon>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium text-[#4a3256] line-clamp-2 hover:underline">${post.title}</div>
+                                            <p class="text-xs text-[#cabeca] mt-1">Posted ${post.daysAgo === 0 ? 'today' : post.daysAgo + 'd ago'}</p>
+                                        </div>
+                                    `;
+                                    container.appendChild(postElement);
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error loading related posts:', error);
+                                document.getElementById('related-posts-container').innerHTML =
+                                    '<p class="text-sm text-[#cabeca]">Unable to load related posts.</p>';
+                            });
+                    }
+                </script>
             </div>
         </div>
     </div>
